@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* fonts.css */
+:root{
+  scroll-behavior: smooth;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
+}
+
+.active-link {
+  color: blue; /* Set the link color to blue when the path matches */
+}
+
+.inactive-link {
+  color: black; /* Set the link color to black for other paths */
+}
