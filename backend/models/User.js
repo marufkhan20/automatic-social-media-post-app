@@ -27,6 +27,14 @@ const userSchema = new Schema(
     },
     business: String,
     timeZone: String,
+    galleries: {
+      type: [Schema.Types.ObjectId],
+      ref: "Gallery",
+    },
+    templates: {
+      type: [Schema.Types.ObjectId],
+      ref: "Template",
+    },
   },
   { timestamps: true }
 );

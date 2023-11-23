@@ -204,9 +204,43 @@ const resetPasswordController = async (req, res) => {
   }
 };
 
+// change password controller
+const changePasswordController = async (req, res) => {
+  try {
+    const { _id } = req.user || {};
+    const { password } = req.body || {};
+
+    // update password
+    const saltRounds = 10;
+    bcrypt.genSalt(saltRounds, function (err, salt) {
+      bcrypt.hash(password, salt, async function (err, hash) {
+        if (err) {
+          return res.status(500).json({
+            error: err,
+          });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(_id, {
+          $set: { password: hash },
+        });
+
+        if (updatedUser?._id) {
+          res.status(201).json(updatedUser);
+        }
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "Server error occurred!!",
+    });
+  }
+};
+
 module.exports = {
   registerController,
   loginController,
   fortgotPasswordController,
   resetPasswordController,
+  changePasswordController,
 };

@@ -3,7 +3,12 @@ const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { authRoutes, userRoutes } = require("./routes");
+const {
+  authRoutes,
+  userRoutes,
+  galleryRoutes,
+  templateRoutes,
+} = require("./routes");
 
 if (process.env.NODE_ENV !== "production") {
   dotenv.config({
@@ -18,7 +23,7 @@ app.use(
     origin: [process.env.CLIENT_URL],
   })
 );
-app.use(express.json({ limit: "8mb" }));
+app.use(express.json({ limit: "100mb" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // set public folder
@@ -27,6 +32,8 @@ app.use(express.static("public"));
 // all routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/galleries", galleryRoutes);
+app.use("/api/templates", templateRoutes);
 app.use("/", (req, res) => {
   res.json({ message: "Hello World" });
 });

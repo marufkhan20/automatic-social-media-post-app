@@ -3,7 +3,9 @@ const {
   loginController,
   resetPasswordController,
   fortgotPasswordController,
+  changePasswordController,
 } = require("../controllers/authController");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = require("express").Router();
 
@@ -18,5 +20,8 @@ router.post("/forgot-password", fortgotPasswordController);
 
 // reset account password
 router.put("/reset-password/:token", resetPasswordController);
+
+// update password
+router.put("/update-password", authMiddleware, changePasswordController);
 
 module.exports = router;

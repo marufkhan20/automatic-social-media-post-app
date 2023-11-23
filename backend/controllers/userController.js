@@ -26,7 +26,7 @@ const updateProfileController = async (req, res) => {
 
     let imagePath;
 
-    if (!profilePic?.includes("profile")) {
+    if (profilePic && !profilePic?.includes("profile")) {
       // upload image
       const buffer = Buffer.from(
         profilePic.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""),
@@ -52,7 +52,9 @@ const updateProfileController = async (req, res) => {
     const user = await User.findById(_id);
     user.firstName = firstName;
     user.lastName = lastName;
-    user.profilePic = image ? `/storage/profile/${imagePath}` : user.profilePic;
+    user.profilePic = imagePath
+      ? `/storage/profile/${imagePath}`
+      : user.profilePic;
     user.business = business;
     user.timeZone = timeZone;
     await user.save();
