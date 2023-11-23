@@ -44,7 +44,8 @@ const Profile = () => {
 
   useEffect(() => {
     console.log("files", fileList);
-  }, [fileList]);
+    console.log("previewImage", previewImage);
+  }, [fileList, previewImage]);
 
   const uploadButton = (
     <div>
@@ -115,7 +116,7 @@ const Profile = () => {
               </Modal>
 
               <div className="md:w-[75%] w-full">
-                <PersonalInfo />
+                <PersonalInfo profilePic={fileList} />
               </div>
               <div className="border-t w-full"></div>
               <div className=" md:w-[75%] w-full">

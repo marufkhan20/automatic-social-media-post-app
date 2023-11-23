@@ -59,6 +59,15 @@ export const authApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+    updatePassword: builder.mutation({
+      query: (password) => ({
+        url: `/api/auth/update-password`,
+        method: "PUT",
+        body: {
+          password,
+        },
+      }),
+    }),
   }),
 });
 
@@ -67,4 +76,5 @@ export const {
   useRegisterMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useUpdatePasswordMutation,
 } = authApi;

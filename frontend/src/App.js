@@ -26,7 +26,6 @@ import Profile from "./pages/dashboard/profile/Profile";
 import Terms from "./pages/dashboard/terms-service/Terms";
 import VideoGallery from "./pages/dashboard/videogallery/VideoGallery";
 import Faq from "./pages/faq/Faq";
-import GroupManager from "./pages/manager/Group";
 import Signin from "./pages/sign-in/Signin";
 import SignUp from "./pages/sign-up/SignUp";
 
@@ -60,29 +59,6 @@ import InstagramTemp from "./pages/dashboard/instatempteam/InstagramTemp";
 import TeamPage from "./pages/dashboard/teampage/TeamPage";
 import Videos from "./pages/dashboard/videostemp/Videos";
 import ForgetPassword from "./pages/forget-password/ForgetPassword";
-import InstagramManager from "./pages/manager/Instagram";
-import ManagerMain from "./pages/manager/ManagerDashboard";
-import OverviewManager from "./pages/manager/Overview";
-import ManagerPages from "./pages/manager/Pages";
-import PostNotificationManager from "./pages/manager/PostNotification";
-import BillingManager from "./pages/manager/billing/BillingManager";
-import ContactManager from "./pages/manager/contact/ContactDash";
-import PostManager from "./pages/manager/facebooktemplate/Post";
-import TemplateFacebookManager from "./pages/manager/facebooktemplate/TemplateFacebook";
-import FacebookManager from "./pages/manager/facebooktempteam/Facebook";
-import FaqManager from "./pages/manager/faq/FaqDashboard";
-import StartedManager from "./pages/manager/gettingstarted/Started";
-import ImageGalleryManager from "./pages/manager/imagegallery/ImageGallery";
-import ImageManagerTeam from "./pages/manager/imagesteam/Image";
-import Post2Manager from "./pages/manager/instagramtemplate/Post2";
-import TemplateInstagramManager from "./pages/manager/instagramtemplate/TemplateInstagram";
-import JoinManager from "./pages/manager/jointeam/Join";
-import PrivacyManager from "./pages/manager/privacy-policy/Privacy";
-import ProfileManager from "./pages/manager/profile/Profile";
-import TeamPageManager from "./pages/manager/teampage/TeamPage";
-import TermsManager from "./pages/manager/terms-service/Terms";
-import VideoGalleryManager from "./pages/manager/videogallery/VideoGallery";
-import VideosManagerTeam from "./pages/manager/videostemp/Videos";
 import ResetPassword from "./pages/reset-password/ResetPassword";
 
 function App() {
@@ -185,7 +161,7 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/facebooktemplate/post"
+            path="/dashboard/facebooktemplate/:id"
             element={
               <UserPrivateRoute>
                 <Post />
@@ -352,199 +328,6 @@ function App() {
                 <Email />
               </UserPrivateRoute>
             }
-          />
-
-          {/* manager  */}
-          <Route
-            path="/manager/group"
-            element={
-              <UserPrivateRoute>
-                <GroupManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/pages"
-            element={
-              <UserPrivateRoute>
-                <ManagerPages />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/contact"
-            element={
-              <UserPrivateRoute>
-                <ContactManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/instagram"
-            element={
-              <UserPrivateRoute>
-                <InstagramManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/post-notification"
-            element={
-              <UserPrivateRoute>
-                <PostNotificationManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/overview"
-            element={
-              <UserPrivateRoute>
-                <OverviewManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/facebooktemplate/facebook-template"
-            element={
-              <UserPrivateRoute>
-                <TemplateFacebookManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/facebooktemplate/post"
-            element={
-              <UserPrivateRoute>
-                <PostManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/instagramtemplate/instagram-template"
-            element={
-              <UserPrivateRoute>
-                <TemplateInstagramManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/instagramtemplate/post"
-            element={
-              <UserPrivateRoute>
-                <Post2Manager />
-              </UserPrivateRoute>
-            }
-          />
-
-          <Route
-            path="/Manager"
-            element={
-              <UserPrivateRoute>
-                <ManagerMain />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/imagegallery/image-gallery"
-            element={
-              <UserPrivateRoute>
-                <ImageGalleryManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/team/image"
-            element={
-              <UserPrivateRoute>
-                <ImageManagerTeam />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/team/videos"
-            element={
-              <UserPrivateRoute>
-                <VideosManagerTeam />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/imagegallery/video-gallery"
-            element={
-              <UserPrivateRoute>
-                <VideoGalleryManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/jointeam/join-team"
-            element={
-              <UserPrivateRoute>
-                <JoinManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/team/team-page"
-            element={
-              <UserPrivateRoute>
-                <TeamPageManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/team/facebook-template"
-            element={
-              <UserPrivateRoute>
-                <FacebookManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/team/instagram-template"
-            element={<UserPrivateRoute></UserPrivateRoute>}
-          />
-          <Route
-            path="/manager/profile/profile"
-            element={
-              <UserPrivateRoute>
-                <ProfileManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/dashboard/Refferals/refferal"
-            element={
-              <UserPrivateRoute>
-                <Refferals />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/billing"
-            element={
-              <UserPrivateRoute>
-                <BillingManager />
-              </UserPrivateRoute>
-            }
-          />
-          <Route
-            path="/manager/getting-started"
-            element={
-              <UserPrivateRoute>
-                <StartedManager />
-              </UserPrivateRoute>
-            }
-          />
-
-          <Route path="/manager/faq" element={<FaqManager />} />
-          <Route
-            path="/manager/privacy-policy/privacy"
-            element={<PrivacyManager />}
-          />
-          <Route
-            path="/manager/terms-service/terms"
-            element={<TermsManager />}
           />
 
           {/* admin  */}

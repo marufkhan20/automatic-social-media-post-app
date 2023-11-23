@@ -29,6 +29,11 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["getUsersManagers"],
+  tagTypes: [
+    "getUsersManagers",
+    "getGalleries",
+    "getTemplateFolders",
+    "getTemplates",
+  ],
   endpoints: (builder) => ({}),
 });

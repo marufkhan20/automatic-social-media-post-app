@@ -1,13 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // src/components/ProfileForm.js
 
 import React, { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import TimezoneSelect, { allTimezones } from "react-timezone-select";
 import spacetime from "spacetime";
+import Loading from "../../../components/shared/Loading";
+import { useUpdateProfileMutation } from "../../../features/user/userApi";
 
-const PersonalInfo = () => {
+const PersonalInfo = ({ profilePic }) => {
   const businessOptions = ["Option 1", "Option 2", "Option 3"]; // Replace with your options
-  const timezoneOptions = ["Option A", "Option B", "Option C"]; // Replace with your options
+
   const [tz, setTz] = useState(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
@@ -22,6 +26,7 @@ const PersonalInfo = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [business, setBusiness] = useState("");
+  const [errors, setErrors] = useState({});
 
   // get user from state
   const { user } = useSelector((state) => state.auth || {});
@@ -35,13 +40,57 @@ const PersonalInfo = () => {
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log("data time", datetime);
-  }, [datetime]);
+  // update profile information
+  const [updateProfile, { data, isError, error, isLoading }] =
+    useUpdateProfileMutation();
 
+  useEffect(() => {
+    if (!isLoading && isError) {
+      const { data } = error || {};
+      setErrors(data.error);
+    }
+
+    if (!isLoading && !isError && data?._id) {
+      toast.success("Profile Update successfully");
+    }
+  }, [data, isLoading, isError, error]);
+
+  useEffect(() => {
+    if (profilePic?.length > 0) {
+      console.log("profile pic", profilePic[0].status);
+    }
+  }, [profilePic]);
+
+  // submit handler
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    // check validation
+    const validationErrors = {};
+
+    if (!firstName) {
+      validationErrors.firstName = "First Name is required!!";
+    }
+
+    if (!lastName) {
+      validationErrors.lastName = "Last Name is required!!";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      return setErrors(validationErrors);
+    }
+
+    updateProfile({
+      firstName,
+      lastName,
+      business,
+      timeZone: tz?.label,
+      profilePic,
+    });
+  };
   return (
     <div className="mx-auto">
-      <form className="">
+      <form className="" onSubmit={submitHandler}>
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
@@ -55,7 +104,11 @@ const PersonalInfo = () => {
             type="text"
             placeholder="Your Name"
             value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
           />
+          {errors?.firstName && (
+            <p className="text-red-500 font-medium mt-3">{errors?.firstName}</p>
+          )}
         </div>
         <div className="mb-4">
           <label
@@ -70,7 +123,11 @@ const PersonalInfo = () => {
             type="text"
             placeholder="Your Name"
             defaultValue={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
+          {errors?.lastName && (
+            <p className="text-red-500 font-medium mt-3">{errors?.lastName}</p>
+          )}
         </div>
         <div className="mb-4">
           <label
@@ -115,8 +172,9 @@ const PersonalInfo = () => {
           <button
             className="bg-[#FF5FC0]  text-white  py-2 px-4 rounded-md "
             type="submit"
+            disabled={isLoading}
           >
-            Save Changes
+            {isLoading ? <Loading /> : "Save Changes"}
           </button>
         </div>
       </form>
