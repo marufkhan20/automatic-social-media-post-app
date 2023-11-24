@@ -3,11 +3,13 @@ const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const postScheduler = require("./services/postScheduler");
 const {
   authRoutes,
   userRoutes,
   galleryRoutes,
   templateRoutes,
+  postRoutes,
 } = require("./routes");
 
 if (process.env.NODE_ENV !== "production") {
@@ -17,6 +19,9 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const app = express();
+
+// Start the cron scheduler
+postScheduler.start();
 
 app.use(
   cors({
@@ -34,6 +39,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/galleries", galleryRoutes);
 app.use("/api/templates", templateRoutes);
+app.use("/api/posts", postRoutes);
 app.use("/", (req, res) => {
   res.json({ message: "Hello World" });
 });

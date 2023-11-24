@@ -38,10 +38,9 @@ export const templateApi = apiSlice.injectEndpoints({
       invalidatesTags: ["getTemplateFolders", "getTemplates"],
     }),
     moveToTemplateFolder: builder.mutation({
-      query: ({ id, folderId, data }) => ({
+      query: ({ id, folderId }) => ({
         url: `/api/templates/move-to-template-folder/${id}/${folderId}`,
         method: "PUT",
-        body: data,
       }),
       invalidatesTags: ["getTemplateFolders", "getTemplates"],
     }),
@@ -69,6 +68,7 @@ export const {
   useGetTemplateFoldersQuery,
   useCreateTemplateMutation,
   useCreateTemplateFolderMutation,
+  useMoveToTemplateFolderMutation,
   useImportTemplateMutation,
   useDublicateTemplateMutation,
   useDeleteTemplateMutation,

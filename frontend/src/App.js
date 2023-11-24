@@ -30,6 +30,7 @@ import Signin from "./pages/sign-in/Signin";
 import SignUp from "./pages/sign-up/SignUp";
 
 import { Toaster } from "react-hot-toast";
+import YourMainComponent from "./Facebook";
 import AdminPrivateRoute from "./pages/AdminPrivateRoute";
 import PublicRoute from "./pages/PublicRoute";
 import UserPrivateRoute from "./pages/UserPrivateRoute";
@@ -65,6 +66,7 @@ function App() {
   return (
     <>
       <Toaster />
+      <YourMainComponent />
       <BrowserRouter>
         <Routes>
           <Route index element={<Home />} />
@@ -177,7 +179,7 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/instagramtemplate/post"
+            path="/dashboard/instagramtemplate/:id"
             element={
               <UserPrivateRoute>
                 <Post2 />

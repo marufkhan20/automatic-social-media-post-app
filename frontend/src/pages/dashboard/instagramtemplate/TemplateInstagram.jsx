@@ -1,56 +1,47 @@
-import React, { useState } from "react";
-import DashboardLayout from "../../../components/layout/DashboardLayout";
+import { Button, DatePicker, Modal } from "antd";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
+import { PiFolderOpen } from "react-icons/pi";
 import { Link } from "react-router-dom";
-import { Button, Modal } from "antd";
-import { DatePicker } from 'antd';
-
-
+import DashboardLayout from "../../../components/layout/DashboardLayout";
+import Loading from "../../../components/shared/Loading";
+import {
+  useCreateTemplateFolderMutation,
+  useCreateTemplateMutation,
+  useGetTemplateFoldersQuery,
+  useGetTemplatesQuery,
+  useImportTemplateMutation,
+} from "../../../features/template/templateApi";
 
 function onChange(value, dateString) {
-    console.log('Selected Time: ', value);
-    console.log('Formatted Selected Time: ', dateString);
+  console.log("Selected Time: ", value);
+  console.log("Formatted Selected Time: ", dateString);
 }
 
 function onOk(value) {
-    console.log('onOk: ', value);
+  console.log("onOk: ", value);
 }
 
 const TemplateInstagram = () => {
   const [modal2Open, setModal2Open] = useState(false);
-    const [open5, setOpen5] = useState(false);
+  const [open5, setOpen5] = useState(false);
 
-    const showModal5 = () => {
-        setOpen5(true);
-    };
+  const showModal5 = () => {
+    setOpen5(true);
+  };
 
-    const handleOk5 = (e) => {
-        console.log(e);
-        setOpen5(false);
-    };
+  const handleOk5 = (e) => {
+    console.log(e);
+    setOpen5(false);
+  };
 
-    const handleCancel5 = (e) => {
-        console.log(e);
-        setOpen5(false);
-    };
-    const [showCalendar, setShowCalendar] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
+  const handleCancel5 = (e) => {
+    console.log(e);
+    setOpen5(false);
+  };
+  const [showCalendar, setShowCalendar] = useState(false);
 
-    const handleDateChange = (date) => {
-        setSelectedDate(date);
-    };
-  const data = [
-    {
-      id: 1,
-      no: 1,
-      title: "1st Party Template",
-    },
-    {
-      id: 2,
-      no: 6,
-      title: "Sample Template",
-    },
-  ];
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
@@ -65,18 +56,9 @@ const TemplateInstagram = () => {
     setOpen3(true);
   };
 
-  const handleOk = (e) => {
-    console.log(e);
-    setOpen(false);
-  };
-
   const handleCancel = (e) => {
     console.log(e);
     setOpen(false);
-  };
-  const handleOk3 = (e) => {
-    console.log(e);
-    setOpen3(false);
   };
 
   const handleCancel3 = (e) => {
@@ -92,17 +74,146 @@ const TemplateInstagram = () => {
     title: "",
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formData);
+  };
+
+  // all necessary states
+  const [filter, setFilter] = useState("all");
+
+  // create folder and get folders
+  const { data: folders, isLoading: folderLoading } =
+    useGetTemplateFoldersQuery("instagram");
+
+  const [folderTitle, setFolderTitle] = useState("");
+  const [folderError, setFolderError] = useState("");
+
+  const [createTemplateFolder, { data: folder, isLoading, isError, error }] =
+    useCreateTemplateFolderMutation();
+
+  useEffect(() => {
+    if (!isLoading && isError) {
+      const { data } = error || {};
+      setFolderError(data.error);
+    }
+
+    if (!isLoading && !isError && folder?._id) {
+      toast.success("Template Folder Created Successfully");
+      handleCancel3();
+      setFolderTitle("");
+      setFolderError("");
+    }
+  }, [folder, isLoading, isError, error]);
+
+  // submit handler
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    // validation
+    if (!folderTitle) {
+      return setFolderError("Folder Name is required!!");
+    }
+
+    createTemplateFolder({
+      title: folderTitle,
+      type: "instagram",
+    });
+  };
+
+  // create template and get template
+  const { data: templates, isLoading: templateLoading } =
+    useGetTemplatesQuery("instagram");
+  console.log("templates", templates);
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [templateErrors, setTemplateErrors] = useState({});
+
+  const [createTemplate, { data: template, isLoading: templateIsLoading }] =
+    useCreateTemplateMutation();
+
+  useEffect(() => {
+    if (!templateIsLoading && template?._id) {
+      toast.success("Template Created Successfully");
+      handleCancel();
+      setTitle("");
+      setDescription("");
+      setTemplateErrors({});
+    }
+  }, [template, templateIsLoading]);
+
+  // submit handler
+  const templateSubmitHandler = (e) => {
+    e.preventDefault();
+
+    // validation
+    const validationErrors = {};
+
+    if (!title) {
+      validationErrors.title = "Template Title is required!!";
+    }
+
+    if (!description) {
+      validationErrors.description = "Template Description is required!!";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      return setTemplateErrors(validationErrors);
+    }
+
+    createTemplate({
+      title,
+      description,
+      type: "instagram",
+    });
+  };
+
+  // import template
+  const [code, setCode] = useState("");
+  const [importErrors, setImportErrors] = useState({});
+
+  const [
+    importTemplate,
+    {
+      data: importedTemplate,
+      isLoading: importLoading,
+      isError: importIsError,
+      error: importError,
+    },
+  ] = useImportTemplateMutation();
+
+  useEffect(() => {
+    if (!importLoading && importIsError) {
+      const { data } = importError || {};
+      setImportErrors(data.error);
+    }
+
+    if (!importLoading && importedTemplate?._id) {
+      toast.success("Template Import Successfully");
+      handleCancel();
+      setCode("");
+      setImportErrors({});
+      handleCancel2();
+    }
+  }, [importedTemplate, importLoading, importIsError, importError]);
+
+  // submit handler
+  const importTemplateSubmitHandler = (e) => {
+    e.preventDefault();
+
+    // validation
+    const validationErrors = {};
+
+    if (!code) {
+      validationErrors.code = "Template Code is required!!";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      return setImportErrors(validationErrors);
+    }
+
+    importTemplate({ code, type: "instagram" });
   };
   return (
     <DashboardLayout>
@@ -134,15 +245,55 @@ const TemplateInstagram = () => {
             <p className="text-[25px] font-[500]">Folders</p>
           </div>
           <div className="flex md:flex-row flex-col gap-4  items-center w-full my-5">
-            <button onClick={showModal3} className="border hover:text-white ease-in duration-300 transition-all hover:bg-[#ADADAD] rounded-md border-[#ADADAD] px-5 h-[33px]">
+            <button
+              onClick={showModal3}
+              className="border hover:text-white ease-in duration-300 transition-all hover:bg-[#ADADAD] rounded-md border-[#ADADAD] px-5 h-[33px]"
+            >
               <AiOutlinePlus size={20} />
             </button>
-            <button className="border hover:text-white ease-in duration-300 transition-all hover:bg-[#ADADAD] rounded-md border-[#ADADAD] px-5 h-[33px]">
+            <button
+              className={`border ${
+                filter === "all"
+                  ? "text-white bg-[#ADADAD]"
+                  : "hover:text-white hover:bg-[#ADADAD]"
+              } ease-in duration-300 transition-all  rounded-md border-[#ADADAD] px-5 h-[33px]`}
+              onClick={() => setFilter("all")}
+            >
               All Templates
             </button>
             <button className="border hover:text-white ease-in duration-300 transition-all hover:bg-[#ADADAD] rounded-md border-[#ADADAD] px-5 h-[33px]">
               Unsorted Templates
             </button>
+          </div>
+
+          <div className="mt-5 grid grid-cols-4 gap-4 items-center">
+            {folderLoading && <Loading type="secondary" />}
+
+            {!folderLoading &&
+              folders?.length > 0 &&
+              folders?.map((folder) => (
+                <div
+                  className={`border border-[#012B6D] rounded-md pt-4 flex flex-col justify-start  cursor-pointer w-full`}
+                  key={folder?._id}
+                  onClick={() => setFilter(folder?._id)}
+                >
+                  <div className="flex items-center justify-center">
+                    <PiFolderOpen size={60} />
+                  </div>
+                  <div
+                    className={`py-5 px-5 flex flex-col gap-1 ${
+                      filter === folder?._id ? "bg-[#012B6D]" : "bg-gray-500"
+                    }`}
+                  >
+                    <p className="text-[18px] font-[700] text-white">
+                      {folder?.title}
+                    </p>
+                    <p className="text-[16px] font-[400] text-[white]">
+                      {folder?.templates?.length} Templates
+                    </p>
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
         <div
@@ -151,11 +302,26 @@ const TemplateInstagram = () => {
         >
           <div className="flex justify-between items-center w-full">
             <div className="flex items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27" fill="none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="27"
+                height="27"
+                viewBox="0 0 27 27"
+                fill="none"
+              >
                 <g clip-path="url(#clip0_1_6)">
-                  <path d="M20.25 0.337494H6.75002C3.20849 0.337494 0.337521 3.20847 0.337521 6.74999V20.25C0.337521 23.7915 3.20849 26.6625 6.75002 26.6625H20.25C23.7915 26.6625 26.6625 23.7915 26.6625 20.25V6.74999C26.6625 3.20847 23.7915 0.337494 20.25 0.337494ZM6.75002 1.34999H20.25C23.2324 1.34999 25.65 3.76766 25.65 6.74999V20.25C25.65 23.2323 23.2324 25.65 20.25 25.65H6.75002C3.76768 25.65 1.35002 23.2323 1.35002 20.25V6.74999C1.35002 3.76766 3.76768 1.34999 6.75002 1.34999Z" fill="#4A4A4A" />
-                  <path d="M13.5 6.24374C9.4925 6.24374 6.24377 9.49248 6.24377 13.5C6.24377 17.5075 9.4925 20.7562 13.5 20.7562C17.5075 20.7562 20.7563 17.5075 20.7563 13.5C20.7563 9.49248 17.5075 6.24374 13.5 6.24374ZM13.5 7.25624C16.9483 7.25624 19.7438 10.0517 19.7438 13.5C19.7438 16.9483 16.9483 19.7437 13.5 19.7437C10.0517 19.7437 7.25627 16.9483 7.25627 13.5C7.25627 10.0517 10.0517 7.25624 13.5 7.25624Z" fill="#4A4A4A" />
-                  <path d="M21.9375 2.86874C20.7259 2.86874 19.7438 3.85092 19.7438 5.06249C19.7438 6.27407 20.7259 7.25624 21.9375 7.25624C23.1491 7.25624 24.1313 6.27407 24.1313 5.06249C24.1313 3.85092 23.1491 2.86874 21.9375 2.86874ZM21.9375 3.88124C22.5899 3.88124 23.1188 4.41011 23.1188 5.06249C23.1188 5.71488 22.5899 6.24374 21.9375 6.24374C21.2851 6.24374 20.7563 5.71488 20.7563 5.06249C20.7563 4.41011 21.2851 3.88124 21.9375 3.88124Z" fill="#4A4A4A" />
+                  <path
+                    d="M20.25 0.337494H6.75002C3.20849 0.337494 0.337521 3.20847 0.337521 6.74999V20.25C0.337521 23.7915 3.20849 26.6625 6.75002 26.6625H20.25C23.7915 26.6625 26.6625 23.7915 26.6625 20.25V6.74999C26.6625 3.20847 23.7915 0.337494 20.25 0.337494ZM6.75002 1.34999H20.25C23.2324 1.34999 25.65 3.76766 25.65 6.74999V20.25C25.65 23.2323 23.2324 25.65 20.25 25.65H6.75002C3.76768 25.65 1.35002 23.2323 1.35002 20.25V6.74999C1.35002 3.76766 3.76768 1.34999 6.75002 1.34999Z"
+                    fill="#4A4A4A"
+                  />
+                  <path
+                    d="M13.5 6.24374C9.4925 6.24374 6.24377 9.49248 6.24377 13.5C6.24377 17.5075 9.4925 20.7562 13.5 20.7562C17.5075 20.7562 20.7563 17.5075 20.7563 13.5C20.7563 9.49248 17.5075 6.24374 13.5 6.24374ZM13.5 7.25624C16.9483 7.25624 19.7438 10.0517 19.7438 13.5C19.7438 16.9483 16.9483 19.7437 13.5 19.7437C10.0517 19.7437 7.25627 16.9483 7.25627 13.5C7.25627 10.0517 10.0517 7.25624 13.5 7.25624Z"
+                    fill="#4A4A4A"
+                  />
+                  <path
+                    d="M21.9375 2.86874C20.7259 2.86874 19.7438 3.85092 19.7438 5.06249C19.7438 6.27407 20.7259 7.25624 21.9375 7.25624C23.1491 7.25624 24.1313 6.27407 24.1313 5.06249C24.1313 3.85092 23.1491 2.86874 21.9375 2.86874ZM21.9375 3.88124C22.5899 3.88124 23.1188 4.41011 23.1188 5.06249C23.1188 5.71488 22.5899 6.24374 21.9375 6.24374C21.2851 6.24374 20.7563 5.71488 20.7563 5.06249C20.7563 4.41011 21.2851 3.88124 21.9375 3.88124Z"
+                    fill="#4A4A4A"
+                  />
                 </g>
                 <defs>
                   <clipPath id="clip0_1_6">
@@ -166,7 +332,9 @@ const TemplateInstagram = () => {
               <p className="text-[25px] font-[500]">Instagram Templates</p>
             </div>
             <div className="">
-              <p className="text-[18px] font-[400]">2 Templates</p>
+              <p className="text-[18px] font-[400]">
+                {templates?.length} Templates
+              </p>
             </div>
           </div>
           <div className="flex md:flex-row flex-col justify-start md:items-center gap-5 mt-5">
@@ -176,106 +344,82 @@ const TemplateInstagram = () => {
             >
               Create New Template
             </button>
-            <button onClick={showModal2} className="border hover:text-white ease-in duration-300 transition-all hover:bg-[#ADADAD] rounded-md border-[#ADADAD] px-5 h-[33px]">
+            <button
+              onClick={showModal2}
+              className="border hover:text-white ease-in duration-300 transition-all hover:bg-[#ADADAD] rounded-md border-[#ADADAD] px-5 h-[33px]"
+            >
               Import Template
             </button>
           </div>
-          {data.map((item, i) => (
-            <Link
-              to={"/dashboard/instagramtemplate/post"}
-              key={i}
-              className="border border-[#ADADAD] w-full p-3 mt-6"
-            >
-              <div className="flex flex-col gap-3 ">
-                <div
-                  className="w-[36px] h-[21px] flex items-center justify-center text-white rounded-full bg-[#012B6D]
+
+          {templateLoading && <Loading type="secondary" />}
+          {!templateLoading &&
+            templates
+              ?.filter((item) =>
+                filter === "all" ? true : item?.folder === filter
+              )
+              ?.map((item, i) => (
+                <Link
+                  to={`/dashboard/instagramtemplate/${item?._id}`}
+                  key={item?._id}
+                  className="border border-[#ADADAD] w-full p-3 mt-6"
+                >
+                  <div className="flex flex-col gap-3 ">
+                    <div
+                      className="w-[36px] h-[21px] flex items-center justify-center text-white rounded-full bg-[#012B6D]
                             "
-                >
-                  {item.no}
-                </div>
-                <p>{item.title}</p>
-              </div>
-            </Link>
-          ))}
+                    >
+                      {i + 1}
+                    </div>
+                    <p>{item.title}</p>
+                  </div>
+                </Link>
+              ))}
         </div>
-        <div className='flex flex-col justify-start items-start gap-3 w-full bg-white rounded-md px-5 md:px-10 py-6' style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}>
-                    <div className='flex items-center gap-3'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <g clip-path="url(#clip0_1301_25)">
-                                <path d="M0 26.8041C0 28.549 1.42041 29.9633 3.15918 29.9633H26.8041C28.549 29.9633 29.9633 28.5429 29.9633 26.8041V3.15918C29.9633 1.41429 28.5429 0 26.8041 0H3.15918C1.41429 0 0 1.42041 0 3.15918V26.8041ZM26.8041 28.4633H3.15918C2.24694 28.4633 1.5 27.7163 1.5 26.8041V22.8551L7.18163 17.1735L12.0367 22.0286C12.3306 22.3224 12.802 22.3224 13.0959 22.0286L21.8633 13.2612L28.4633 19.8612V26.8041C28.4633 27.7163 27.7163 28.4633 26.8041 28.4633ZM3.15918 1.5H26.8041C27.7163 1.5 28.4633 2.24694 28.4633 3.15918V17.7367L22.3898 11.6694C22.0959 11.3755 21.6245 11.3755 21.3306 11.6694L12.5633 20.4367L7.70816 15.5816C7.41429 15.2878 6.94286 15.2878 6.64898 15.5816L1.5 20.7306V3.15918C1.5 2.24694 2.24694 1.5 3.15918 1.5ZM9.28776 12.0061C11.3939 12.0061 13.102 10.2918 13.102 8.19184C13.102 6.09184 11.3878 4.37755 9.28776 4.37755C7.18776 4.37755 5.47347 6.09184 5.47347 8.19184C5.47347 10.2918 7.18163 12.0061 9.28776 12.0061ZM9.28776 5.87755C10.5673 5.87755 11.602 6.91837 11.602 8.19184C11.602 9.46531 10.5612 10.5061 9.28776 10.5061C8.01429 10.5061 6.97347 9.46531 6.97347 8.19184C6.97347 6.91837 8.00816 5.87755 9.28776 5.87755Z" fill="#4A4A4A" />
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_1301_25">
-                                    <rect width="30" height="30" fill="white" />
-                                </clipPath>
-                            </defs>
-                        </svg>
-                        <p className='text-[25px] font-[500]'>
-                            Your Scheduled Posts
-                        </p>
-                    </div>
-                    <div className='w-[296px] h-[153px] flex items-center justify-center border border-[#ADADAD]'>
-                        <img src="/images/meet.jpg" alt="" className='w-[270px] h-[130px] object-cover' />
-
-                    </div>
-                    <p className='text-[#7E97A5] pt-3'>
-                        Sep 6, 2023  6:00PM
-                    </p>
-                    <button onClick={showModal5} className='w-[151px] mt-5 h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]'>
-                        Reschedule
-                    </button>
-                </div>
+        <div
+          className="flex flex-col justify-start items-start gap-3 w-full bg-white rounded-md px-5 md:px-10 py-6"
+          style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}
+        >
+          <div className="flex items-center gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="30"
+              height="30"
+              viewBox="0 0 30 30"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_1301_25)">
+                <path
+                  d="M0 26.8041C0 28.549 1.42041 29.9633 3.15918 29.9633H26.8041C28.549 29.9633 29.9633 28.5429 29.9633 26.8041V3.15918C29.9633 1.41429 28.5429 0 26.8041 0H3.15918C1.41429 0 0 1.42041 0 3.15918V26.8041ZM26.8041 28.4633H3.15918C2.24694 28.4633 1.5 27.7163 1.5 26.8041V22.8551L7.18163 17.1735L12.0367 22.0286C12.3306 22.3224 12.802 22.3224 13.0959 22.0286L21.8633 13.2612L28.4633 19.8612V26.8041C28.4633 27.7163 27.7163 28.4633 26.8041 28.4633ZM3.15918 1.5H26.8041C27.7163 1.5 28.4633 2.24694 28.4633 3.15918V17.7367L22.3898 11.6694C22.0959 11.3755 21.6245 11.3755 21.3306 11.6694L12.5633 20.4367L7.70816 15.5816C7.41429 15.2878 6.94286 15.2878 6.64898 15.5816L1.5 20.7306V3.15918C1.5 2.24694 2.24694 1.5 3.15918 1.5ZM9.28776 12.0061C11.3939 12.0061 13.102 10.2918 13.102 8.19184C13.102 6.09184 11.3878 4.37755 9.28776 4.37755C7.18776 4.37755 5.47347 6.09184 5.47347 8.19184C5.47347 10.2918 7.18163 12.0061 9.28776 12.0061ZM9.28776 5.87755C10.5673 5.87755 11.602 6.91837 11.602 8.19184C11.602 9.46531 10.5612 10.5061 9.28776 10.5061C8.01429 10.5061 6.97347 9.46531 6.97347 8.19184C6.97347 6.91837 8.00816 5.87755 9.28776 5.87755Z"
+                  fill="#4A4A4A"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_1301_25">
+                  <rect width="30" height="30" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            <p className="text-[25px] font-[500]">Your Scheduled Posts</p>
+          </div>
+          <div className="w-[296px] h-[153px] flex items-center justify-center border border-[#ADADAD]">
+            <img
+              src="/images/meet.jpg"
+              alt=""
+              className="w-[270px] h-[130px] object-cover"
+            />
+          </div>
+          <p className="text-[#7E97A5] pt-3">Sep 6, 2023 6:00PM</p>
+          <button
+            onClick={showModal5}
+            className="w-[151px] mt-5 h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
+          >
+            Reschedule
+          </button>
+        </div>
       </div>
-      <Modal
-                    title={null}
-                    closable={false}
-                    visible={open5}
-                    centered
-                    onCancel={handleCancel5}
-                    width={700}
-                    wrapClassName="custom-modal" // Apply a custom CSS class to the Modal wrapper
-                    footer={[
-                        <Button
-                            key="cancel"
-                            className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
-                            onClick={handleOk5}
-                        >
-                            Ok
-                        </Button>,
-                        <Button
-                            key="cancel"
-                            className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
-                            onClick={handleCancel5}
-                        >
-                            Cancel
-                        </Button>,
-                    ]}
-                >
-                    <div className="bg-[#012B6D] w-[328px] md:w-[700px] rounded-t-md p-5 ml-[-1.5rem] mt-[-1.3rem]">
-                        <h1 className="text-[25px] text-white">Rescheduled Post</h1>
-                    </div>
-                    <div>
-                        <div
-                            className="mt-4 p-4 rounded-[9px] flex justify-between items-center w-full"
-                            style={{ background: "rgba(173, 173, 173, 0.06)" }}
-                            onClick={() => setShowCalendar(!showCalendar)}
-                        >
-                            <div className="flex items-start gap-5">
-                                <img src="/images/meet.jpg" alt="" className="w-[100px] h-[100px] object-cover" />
-                                <p className="text-[18px] font-[700]">Post 1</p>
-                            </div>
-                        </div>
 
-                        {showCalendar && (
-                            <div className="mt-2 p-2 flex items-center gap-3 rounded-lg shadow-md">
-                                <DatePicker showTime onChange={onChange} onOk={onOk} />
-                                <button onClick={() => setModal2Open(false)} className='w-[151px]  h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]'>
-                                    Reschedule
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </Modal>
+      {/* create folder */}
       <Modal
         title={null}
         closable={false}
@@ -289,7 +433,7 @@ const TemplateInstagram = () => {
             type="submit"
             key="ok"
             className="bg-[#012B6D] h-[48px] w-[122px] text-[18px] rounded-md text-white"
-            onClick={handleOk3}
+            onClick={submitHandler}
           >
             Create
           </Button>,
@@ -307,7 +451,7 @@ const TemplateInstagram = () => {
         </div>
         <div>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={submitHandler}
             className="flex my-8 flex-col justify-center items-center gap-5 "
           >
             <div className="flex items-center gap-5 ml-16">
@@ -319,15 +463,18 @@ const TemplateInstagram = () => {
                 id="title"
                 name="title"
                 className="border-[#ADADAD] md:w-[500px] border py-2 px-4 focus:outline-none w-[70%]"
-                value={formData.title}
-                onChange={handleInputChange}
+                value={folderTitle}
+                onChange={(e) => setFolderTitle(e.target.value)}
               />
             </div>
-
+            {folderError && (
+              <p className="text-red-500 font-medium mt-3">{folderError}</p>
+            )}
           </form>
         </div>
-
       </Modal>
+
+      {/* create template */}
       <Modal
         title={null}
         closable={false}
@@ -341,9 +488,9 @@ const TemplateInstagram = () => {
             type="submit"
             key="ok"
             className="bg-[#012B6D] h-[48px] w-[122px] text-[18px] rounded-md text-white"
-            onClick={handleOk}
+            onClick={templateSubmitHandler}
           >
-            Create
+            {templateLoading ? <Loading /> : "Create"}
           </Button>,
           <Button
             key="cancel"
@@ -359,7 +506,7 @@ const TemplateInstagram = () => {
         </div>
         <div>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={templateSubmitHandler}
             className="flex my-8 flex-col justify-center items-center gap-5 "
           >
             <div className="flex items-center gap-5 ml-16">
@@ -371,10 +518,15 @@ const TemplateInstagram = () => {
                 id="title"
                 name="title"
                 className="border-[#ADADAD] md:w-[500px] border py-2 px-4 focus:outline-none w-[70%]"
-                value={formData.title}
-                onChange={handleInputChange}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
             </div>
+            {templateErrors?.title && (
+              <p className="text-red-500 font-medium mt-3">
+                {templateErrors?.title}
+              </p>
+            )}
             <div className="flex items-center gap-5">
               <label htmlFor="description" className="text-[18px] font-[700]">
                 Description:
@@ -384,10 +536,15 @@ const TemplateInstagram = () => {
                 id="description"
                 name="description"
                 className="border-[#ADADAD] md:w-[500px] border py-2 px-4 focus:outline-none w-[70%]"
-                value={formData.description}
-                onChange={handleInputChange}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            {templateErrors?.description && (
+              <p className="text-red-500 font-medium mt-3">
+                {templateErrors?.description}
+              </p>
+            )}
           </form>
         </div>
         <div className="text-[18px] my-5">
@@ -395,6 +552,8 @@ const TemplateInstagram = () => {
           can alter it any time, share it with friends, and re-use it anytime.
         </div>
       </Modal>
+
+      {/* import template */}
       <Modal
         title={null}
         closable={false}
@@ -418,7 +577,7 @@ const TemplateInstagram = () => {
         </div>
         <div>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={importTemplateSubmitHandler}
             className="flex my-8 flex-col justify-start items-start gap-5 "
           >
             <div className="flex flex-col  gap-5 ">
@@ -428,19 +587,82 @@ const TemplateInstagram = () => {
               <div className="border  flex items-center">
                 <input
                   type="text"
-                  placeholder="Search..."
-                  className="flex-1 px-3 bg-transparent  outline-none"
+                  placeholder="Enter code..."
+                  className="flex-1 px-3 bg-transparent text-[#777] outline-none"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
                 />
-                <button className="bg-[#012B6D] py-3 px-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M19.8226 18.98L14.9623 14.1197C16.2661 12.6208 17.0554 10.6652 17.0554 8.52772C17.0554 3.82262 13.2284 0 8.52772 0C3.82262 0 0 3.82705 0 8.52772C0 13.2284 3.82705 17.0554 8.52772 17.0554C10.6652 17.0554 12.6208 16.2661 14.1197 14.9623L18.98 19.8226C19.0953 19.9379 19.2506 20 19.4013 20C19.5521 20 19.7073 19.9424 19.8226 19.8226C20.0532 19.592 20.0532 19.2106 19.8226 18.98ZM1.1929 8.52772C1.1929 4.48337 4.48337 1.19734 8.52328 1.19734C12.5676 1.19734 15.8537 4.48781 15.8537 8.52772C15.8537 12.5676 12.5676 15.8625 8.52328 15.8625C4.48337 15.8625 1.1929 12.5721 1.1929 8.52772Z" fill="white" />
-                  </svg>
+                <button
+                  onClick={importTemplateSubmitHandler}
+                  className="bg-[#012B6D] py-3 px-3 text-white font-semibold"
+                >
+                  Import
                 </button>
-
               </div>
-
-            </div>{" "}
+              {importErrors?.code && (
+                <p className="text-red-500 font-medium">{importErrors?.code}</p>
+              )}
+            </div>
           </form>
+        </div>
+      </Modal>
+
+      {/* reschedule post */}
+      <Modal
+        title={null}
+        closable={false}
+        visible={open5}
+        centered
+        onCancel={handleCancel5}
+        width={700}
+        wrapClassName="custom-modal" // Apply a custom CSS class to the Modal wrapper
+        footer={[
+          <Button
+            key="cancel"
+            className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
+            onClick={handleOk5}
+          >
+            Ok
+          </Button>,
+          <Button
+            key="cancel"
+            className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
+            onClick={handleCancel5}
+          >
+            Cancel
+          </Button>,
+        ]}
+      >
+        <div className="bg-[#012B6D] w-[328px] md:w-[700px] rounded-t-md p-5 ml-[-1.5rem] mt-[-1.3rem]">
+          <h1 className="text-[25px] text-white">Rescheduled Post</h1>
+        </div>
+        <div>
+          <div
+            className="mt-4 p-4 rounded-[9px] flex justify-between items-center w-full"
+            style={{ background: "rgba(173, 173, 173, 0.06)" }}
+            onClick={() => setShowCalendar(!showCalendar)}
+          >
+            <div className="flex items-start gap-5">
+              <img
+                src="/images/meet.jpg"
+                alt=""
+                className="w-[100px] h-[100px] object-cover"
+              />
+              <p className="text-[18px] font-[700]">Post 1</p>
+            </div>
+          </div>
+
+          {showCalendar && (
+            <div className="mt-2 p-2 flex items-center gap-3 rounded-lg shadow-md">
+              <DatePicker showTime onChange={onChange} onOk={onOk} />
+              <button
+                onClick={() => setModal2Open(false)}
+                className="w-[151px]  h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
+              >
+                Reschedule
+              </button>
+            </div>
+          )}
         </div>
       </Modal>
     </DashboardLayout>

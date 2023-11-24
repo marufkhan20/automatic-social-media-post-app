@@ -163,6 +163,14 @@ const moveToTemplateFolderController = async (req, res) => {
     const template = await Template.findById(id);
     const templateFolder = await TemplateFolder.findById(folderId);
 
+    // delete from template folder
+    if (template?.folder) {
+      await TemplateFolder.updateOne(
+        { _id: template?.folder },
+        { $pull: { templates: template?._id } }
+      );
+    }
+
     // update template
     template.folder = templateFolder._id;
     await template.save();
@@ -186,14 +194,30 @@ const dublicateTemplateController = async (req, res) => {
     const { id, title } = req.body || {};
 
     const template = await Template.findById(id);
+    console.log("template", template);
 
     // create new template from template
+    const { description, code, type, user, folder } = template || {};
     const newTemplate = new Template({
       title,
-      ...template,
+      description,
+      code,
+      type,
+      user,
+      folder,
     });
 
     await newTemplate.save();
+
+    // update template folder
+    if (folder) {
+      const templateFolder = await TemplateFolder.findById(folder);
+      templateFolder.templates = [
+        ...templateFolder?.templates,
+        newTemplate?._id,
+      ];
+      await templateFolder.save();
+    }
 
     res.status(201).json(newTemplate);
   } catch (err) {
@@ -208,6 +232,14 @@ const dublicateTemplateController = async (req, res) => {
 const deleteTemplateController = async (req, res) => {
   const { id } = req.params || {};
   const deletedTemplate = await Template.findByIdAndDelete(id);
+  console.log("Deleted template", deletedTemplate);
+  // delete from template folder
+  if (deletedTemplate?.folder) {
+    await TemplateFolder.updateOne(
+      { _id: deletedTemplate?.folder },
+      { $pull: { templates: deletedTemplate?._id } }
+    );
+  }
   res.status(200).json(deletedTemplate);
 };
 

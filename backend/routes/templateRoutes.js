@@ -47,7 +47,7 @@ router.put(
 );
 
 // dublicate template
-router.post("dublicate-template", authMiddleware, dublicateTemplateController);
+router.post("/dublicate-template", authMiddleware, dublicateTemplateController);
 
 // delete template
 router.delete("/delete-template/:id", authMiddleware, deleteTemplateController);
