@@ -5,7 +5,7 @@ const FacebookLoginButton = () => {
   return (
     <div>
       <FacebookLogin
-        appId="229804916794431"
+        appId="1036301224158265"
         onSuccess={(response) => {
           console.log("Login Success!", response);
         }}
