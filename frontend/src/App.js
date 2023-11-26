@@ -30,7 +30,7 @@ import Signin from "./pages/sign-in/Signin";
 import SignUp from "./pages/sign-up/SignUp";
 
 import { Toaster } from "react-hot-toast";
-import YourMainComponent from "./Facebook";
+import FacebookLoginButton from "./FacebookLogin";
 import AdminPrivateRoute from "./pages/AdminPrivateRoute";
 import PublicRoute from "./pages/PublicRoute";
 import UserPrivateRoute from "./pages/UserPrivateRoute";
@@ -66,7 +66,7 @@ function App() {
   return (
     <>
       <Toaster />
-      <YourMainComponent />
+      <FacebookLoginButton />
       <BrowserRouter>
         <Routes>
           <Route index element={<Home />} />
@@ -250,7 +250,7 @@ function App() {
               </UserPrivateRoute>
             }
           />
-          <Route path="/dashboard/team/team-page" element={<TeamPage />} />
+          <Route path="/dashboard/team/:id" element={<TeamPage />} />
           <Route
             path="/dashboard/team/facebook-template"
             element={

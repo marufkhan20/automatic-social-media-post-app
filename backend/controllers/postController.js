@@ -1,5 +1,7 @@
 const Post = require("../models/Post");
 const { Template } = require("../models/Template");
+const Jimp = require("jimp");
+const path = require("path");
 
 // posts controller
 const getPostsController = async (req, res) => {
@@ -7,7 +9,7 @@ const getPostsController = async (req, res) => {
     const { type } = req.params || {};
     const { _id } = req.user || {};
 
-    const posts = await Post.find({ user: _id, type });
+    const posts = await Post.find({ user: _id, type, published: false });
     res.status(200).json(posts);
   } catch (err) {
     console.error(err);
@@ -47,6 +49,43 @@ const createNewPostController = async (req, res) => {
     } = req.body || {};
     const { _id } = req.user || {};
 
+    const attachmentsImages = [];
+
+    // upload images
+    if (attachmentType === "image") {
+      attachments?.forEach(async (image) => {
+        if (image?.includes("/storage")) {
+          attachmentsImages.push(image);
+        } else {
+          let filePath;
+
+          console.log("file upload", image);
+
+          // upload image
+          const buffer = Buffer.from(
+            image.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""),
+            "base64"
+          );
+
+          filePath = `${Date.now()}-${Math.round(Math.random() * 1e9)}.png`;
+
+          try {
+            const jimpResp = await Jimp.read(buffer);
+            jimpResp.write(
+              path.resolve(
+                __dirname,
+                `../public/storage/gallery/images/${filePath}`
+              )
+            );
+
+            attachmentsImages.push(`/storage/gallery/images/${filePath}`);
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      });
+    }
+
     // create new post
     const newPost = new Post({
       user: _id,
@@ -57,7 +96,7 @@ const createNewPostController = async (req, res) => {
       description,
       type,
       attachmentType,
-      attachments,
+      attachments: attachmentType === "image" ? attachmentsImages : attachments,
       template: templateId,
     });
 
@@ -109,7 +148,7 @@ const reschedulePostController = async (req, res) => {
     const { id } = req.params || {};
     const { time, date } = req.body || {};
 
-    const updatedPost = await Post.findOneAndUpdate(id, {
+    const updatedPost = await Post.findByIdAndUpdate(id, {
       $set: { time, date },
     });
 
@@ -141,6 +180,15 @@ const deletePostController = async (req, res) => {
   try {
     const { id } = req.params || {};
     const deletedPost = await Post.findByIdAndDelete(id);
+
+    // delete from post template
+    if (deletedPost?._id) {
+      await Template.updateOne(
+        { _id: deletedPost?.template },
+        { $pull: { posts: deletedPost?._id } }
+      );
+    }
+
     res.status(200).json(deletedPost);
   } catch (err) {
     console.error(err);

@@ -34,7 +34,11 @@ export const apiSlice = createApi({
     "getGalleries",
     "getTemplateFolders",
     "getTemplates",
+    "getTemplate",
     "getPosts",
+    "getJoinedTeams",
+    "getTeamTemplates",
+    "getTeamGalleries",
   ],
   endpoints: (builder) => ({}),
 });

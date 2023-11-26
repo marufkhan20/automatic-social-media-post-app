@@ -12,7 +12,7 @@ export const galleryApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["getGalleries"],
+      invalidatesTags: ["getGalleries", "getTeamGalleries"],
     }),
     uploadFile: builder.mutation({
       query: ({ id, data }) => ({

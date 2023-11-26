@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 import { useGetGalleriesQuery } from "../../../features/gallery/galleryApi";
 import { useCreatePostMutation } from "../../../features/post/postApi";
 
-const CreatePost = ({ handleCancel }) => {
+const CreatePost = ({ handleCancel, refetch }) => {
   // create post state
   const [date, setDate] = useState("");
   const [dateFormat, setDateFormat] = useState("");
@@ -19,17 +19,25 @@ const CreatePost = ({ handleCancel }) => {
   const [eventStartMode, setEventStartMode] = useState("");
   const [title, setTitle] = useState("");
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [image, setImage] = useState("");
-  const [video, setVideo] = useState("");
+  const [images, setImages] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [album, setAlbum] = useState("");
   const [webLink, setWebLink] = useState("");
+  const [filterImageFolder, setFilterImageFolder] = useState("all");
+  const [filterVideoFolder, setFilterVideoFolder] = useState("all");
   const [errors, setErrors] = useState({});
 
   const [text, setText] = useState("");
 
+  useEffect(() => {
+    if (title) {
+      setText(title);
+    }
+  }, [title]);
+
   const charCount = text.length;
   const isOverLimit = charCount > 75;
-  const [selectedValue, setSelectedValue] = useState("before"); // Default value
+  const [selectedValue, setSelectedValue] = useState("after"); // Default value
 
   const handleSelectChange = (e) => {
     setSelectedValue(e.target.value);
@@ -42,26 +50,35 @@ const CreatePost = ({ handleCancel }) => {
   const handleItalicClick = () => {
     setEditorState(RichUtils.toggleInlineStyle(editorState, "ITALIC"));
   };
-  const [selectedFiles, setSelectedFiles] = useState([]);
+
   const [selectedOption, setSelectedOption] = useState("");
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
   };
 
-  const handleImageDelete = (index) => {
-    const updatedFiles = [...selectedFiles];
-    updatedFiles.splice(index, 1);
-    setSelectedFiles(updatedFiles);
+  const handleImageDelete = (image) => {
+    const deletedImages = images?.filter((item) => item !== image);
+    setImages(deletedImages);
   };
+
+  const handleVideoDelete = (video) => {
+    const deletedVideos = videos?.filter((item) => item !== video);
+    setVideos(deletedVideos);
+  };
+
   const fileInputRef = useRef(null);
 
-  const handleFileInputChange = (e) => {
-    const files = Array.from(e.target.files);
-    setSelectedFiles(files);
-  };
-  const handleUploadButtonClick = () => {
-    fileInputRef.current.click();
+  // capture image funciton
+  const captureImage = (e) => {
+    const file = e.target.files[0];
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onloadend = () => {
+      setImages([...images, reader.result]);
+    };
   };
 
   // get all gallery image
@@ -84,8 +101,9 @@ const CreatePost = ({ handleCancel }) => {
       toast.success("Post Created Successfully");
       handleCancel();
       setErrors({});
+      refetch();
     }
-  }, [newPost, isLoading, isError, error, handleCancel]);
+  }, [newPost, isLoading, isError, error, handleCancel, refetch]);
 
   // submit handler
   const submitHandler = (e) => {
@@ -125,8 +143,18 @@ const CreatePost = ({ handleCancel }) => {
       title,
       description: text,
       type: "facebook",
-      attachmentType: "",
-      attachments: [],
+      attachmentType: selectedOption,
+      attachments:
+        selectedOption === "video"
+          ? videos
+          : selectedOption === "image"
+          ? images
+          : selectedOption === "album"
+          ? [album]
+          : selectedOption === "link"
+          ? [webLink]
+          : [],
+      minutes,
     });
   };
   return (
@@ -191,7 +219,6 @@ const CreatePost = ({ handleCancel }) => {
                 onChange={handleSelectChange}
                 className="border p-2 rounded w-full md:w-64"
               >
-                <option value="before">Relative to the starting time</option>
                 <option value="after">Exact time of day</option>
               </select>
             </div>
@@ -325,18 +352,22 @@ const CreatePost = ({ handleCancel }) => {
         <div className="w-full">
           {selectedOption === "image" && (
             <div>
-              <div className=" border mt-3 p-2 rounded-md h-40 overflow-hidden">
+              <div className=" border mt-3 p-2 rounded-md overflow-hidden">
                 <h1 className=" font-[600]">Selected Images</h1>
-                <div className="flex gap-3 p-3 ">
-                  {selectedFiles.map((file, index) => (
+                <div className="grid grid-cols-6 gap-3 p-3 ">
+                  {images?.map((image, index) => (
                     <div key={index} className="relative ">
                       <img
-                        src={URL.createObjectURL(file)}
+                        src={
+                          image?.includes("/storage")
+                            ? `${process.env.REACT_APP_API_URL}${image}`
+                            : image
+                        }
                         alt=""
-                        className="w-[60px] md:w-[100px] object-cover"
+                        className="h-[120px] w-full object-cover"
                       />
                       <button
-                        onClick={() => handleImageDelete(index)}
+                        onClick={() => handleImageDelete(image)}
                         className="absolute top-0 right-0 w-5 mt-2 mr-2 flex items-center justify-center h-5 bg-red-500 text-white rounded-full hover:bg-red-600"
                       >
                         &#215;
@@ -354,11 +385,22 @@ const CreatePost = ({ handleCancel }) => {
                     <label htmlFor="" className="block font-semibold">
                       Image Folder:
                     </label>
-                    <select id="" name="" className="border p-2 rounded w-40">
-                      <option value="">Images</option>
-                      <option value="">
-                        Images from template "Sample Template"
-                      </option>
+                    <select
+                      id=""
+                      name=""
+                      className="border p-2 rounded w-40"
+                      onChange={(e) => setFilterImageFolder(e.target.value)}
+                    >
+                      <option value="all">Images</option>
+                      {imageGalleries?.map((gallery) => (
+                        <option
+                          selected={filterImageFolder === gallery?._id}
+                          value={gallery?._id}
+                          key={gallery?._id}
+                        >
+                          {gallery?.folderName}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="flex items-center gap-3 my-4">
@@ -373,17 +415,18 @@ const CreatePost = ({ handleCancel }) => {
                 </div>
                 <div className="flex flex-col gap-2 justify-center items-center w-full py-2 md:w-1/2 border-gray-300 border-2 border-dashed ">
                   <IoCloudUploadOutline size={35} />
-                  <button
-                    onClick={handleUploadButtonClick}
+                  <label
+                    htmlFor="image"
                     className="p-2 rounded bg-transparent text-gray-400 border"
                   >
                     Upload Image
-                  </button>
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
-                    multiple
-                    onChange={handleFileInputChange}
+                    id="image"
+                    // multiple
+                    onChange={captureImage}
                     ref={fileInputRef}
                     style={{ display: "none" }}
                   />
@@ -395,15 +438,22 @@ const CreatePost = ({ handleCancel }) => {
                 <p className="font-[500]">Image Gallery</p>
 
                 <div className="grid grid-cols-4 gap-3 mt-5">
-                  {imageGalleries?.map((item) =>
-                    item?.resources?.map((image) => (
-                      <img
-                        className="w-full h-[120px]"
-                        src={`${process.env.REACT_APP_API_URL}${image}`}
-                        alt=""
-                      />
-                    ))
-                  )}
+                  {imageGalleries
+                    ?.filter((item) =>
+                      filterImageFolder === "all"
+                        ? true
+                        : item?._id === filterImageFolder
+                    )
+                    .map((item) =>
+                      item?.resources?.map((image) => (
+                        <img
+                          className="w-full h-[120px] cursor-pointer"
+                          src={`${process.env.REACT_APP_API_URL}${image}`}
+                          alt=""
+                          onClick={() => setImages([...images, image])}
+                        />
+                      ))
+                    )}
                 </div>
               </div>
             </div>
@@ -412,18 +462,17 @@ const CreatePost = ({ handleCancel }) => {
         <div className="w-full">
           {selectedOption === "video" && (
             <div>
-              <div className=" border mt-3 p-2 rounded-md h-40 overflow-hidden">
+              <div className=" border mt-3 p-2 rounded-md overflow-hidden">
                 <h1 className=" font-[600]">Selected Videos</h1>
-                <div className="flex gap-3 p-3 ">
-                  {selectedFiles.map((file, index) => (
+                <div className="grid grid-cols-6 gap-3 p-3 ">
+                  {videos?.map((video, index) => (
                     <div key={index} className="relative ">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt=""
-                        className="w-[100px] object-cover"
-                      />
+                      <video
+                        src={`${process.env.REACT_APP_API_URL}${video}`}
+                        className="w-full h-[120px]"
+                      ></video>
                       <button
-                        onClick={() => handleImageDelete(index)}
+                        onClick={() => handleVideoDelete(video)}
                         className="absolute top-0 right-0 w-5 mt-2 mr-2 flex items-center justify-center h-5 bg-red-500 text-white rounded-full hover:bg-red-600"
                       >
                         &#215;
@@ -441,11 +490,18 @@ const CreatePost = ({ handleCancel }) => {
                     <label htmlFor="" className="block font-semibold">
                       Video Folder:
                     </label>
-                    <select id="" name="" className="border p-2 rounded w-40">
-                      <option value="">Videos</option>
-                      <option value="">
-                        Videos from template "Sample Template"
-                      </option>
+                    <select
+                      id=""
+                      name=""
+                      onChange={(e) => setFilterVideoFolder(e.target.value)}
+                      className="border p-2 rounded w-40"
+                    >
+                      <option value="all">Videos</option>
+                      {videoGalleries?.map((item) => (
+                        <option value={item?._id} key={item?._id}>
+                          {item?.folderName}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="flex items-center gap-3 my-4">
@@ -458,39 +514,27 @@ const CreatePost = ({ handleCancel }) => {
                     />
                   </div>
                 </div>
-                <div className=" hidden flex-col gap-2 justify-center items-center w-full md:w-1/2  border-gray-300 border-2 border-dashed ">
-                  <IoCloudUploadOutline size={35} />
-                  <button
-                    onClick={handleUploadButtonClick}
-                    className="p-2 rounded bg-transparent text-gray-400 border"
-                  >
-                    Upload Image
-                  </button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileInputChange}
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                  />
-                  <p className="text-[18px] font-[500]">Or Drag Image Here</p>
-                  <p>From your computer</p>
-                </div>
               </div>
               <div className="w-full  border rounded-md p-2 flex flex-col  text-center h-40 mt-4">
                 <p className="font-[500]">Video Gallery</p>
                 <div className="grid grid-cols-4 gap-3 mt-5">
-                  {videoGalleries?.map((item) =>
-                    item?.resources?.map((video) => (
-                      <video
-                        key={video}
-                        controls
-                        className="h-[120px] w-full"
-                        src={`${process.env.REACT_APP_API_URL}${video}`}
-                      ></video>
-                    ))
-                  )}
+                  {videoGalleries
+                    ?.filter((item) =>
+                      filterVideoFolder === "all"
+                        ? true
+                        : item?._id === filterVideoFolder
+                    )
+                    .map((item) =>
+                      item?.resources?.map((video) => (
+                        <video
+                          key={video}
+                          controls
+                          className="h-[120px] w-full cursor-pointer"
+                          onClick={() => setVideos([...videos, video])}
+                          src={`${process.env.REACT_APP_API_URL}${video}`}
+                        ></video>
+                      ))
+                    )}
                 </div>
               </div>
             </div>
@@ -530,7 +574,7 @@ const CreatePost = ({ handleCancel }) => {
           )}
         </div>
       </div>
-      <div className="mt-8 flex items-center justify-end">
+      <div className="mt-8 flex items-center justify-end gap-5">
         <Button
           type="submit"
           key="ok"
@@ -539,7 +583,6 @@ const CreatePost = ({ handleCancel }) => {
         >
           Create
         </Button>
-        ,
         <Button
           key="cancel"
           className="text-[18px] h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"

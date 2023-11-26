@@ -10,6 +10,7 @@ const {
   galleryRoutes,
   templateRoutes,
   postRoutes,
+  teamRoutes,
 } = require("./routes");
 
 if (process.env.NODE_ENV !== "production") {
@@ -39,7 +40,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/galleries", galleryRoutes);
 app.use("/api/templates", templateRoutes);
-app.use("/api/posts", postRoutes);
+app.use("/api/teams", teamRoutes);
 app.use("/", (req, res) => {
   res.json({ message: "Hello World" });
 });

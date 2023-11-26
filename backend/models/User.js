@@ -35,6 +35,10 @@ const userSchema = new Schema(
       type: [Schema.Types.ObjectId],
       ref: "Template",
     },
+    teams: {
+      type: [Schema.Types.ObjectId],
+      ref: "Team",
+    },
   },
   { timestamps: true }
 );

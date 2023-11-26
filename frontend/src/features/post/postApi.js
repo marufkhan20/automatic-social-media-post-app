@@ -15,7 +15,7 @@ export const postApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["getPosts"],
+      invalidatesTags: ["getPosts", "getTemplate"],
     }),
     dublicatePost: builder.mutation({
       query: ({ id, data }) => ({

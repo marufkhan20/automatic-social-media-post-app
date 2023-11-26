@@ -4,4 +4,5 @@ module.exports = {
   galleryRoutes: require("./galleryRoutes"),
   templateRoutes: require("./templateRoutes"),
   postRoutes: require("./postRoutes"),
+  teamRoutes: require("./teamRoutes"),
 };

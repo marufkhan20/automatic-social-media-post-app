@@ -4,6 +4,7 @@ export const templateApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getSingleTemplate: builder.query({
       query: (id) => `/api/templates/single-template/${id}`,
+      providesTags: ["getTemplate"],
     }),
     getTemplates: builder.query({
       query: (type) => `/api/templates/all-templates/${type}`,
@@ -27,7 +28,11 @@ export const templateApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["getTemplateFolders", "getTemplates"],
+      invalidatesTags: [
+        "getTemplateFolders",
+        "getTemplates",
+        "getTeamTemplates",
+      ],
     }),
     importTemplate: builder.mutation({
       query: (data) => ({

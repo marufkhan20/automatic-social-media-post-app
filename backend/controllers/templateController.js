@@ -6,7 +6,7 @@ const User = require("../models/User");
 const getSingleTemplateController = async (req, res) => {
   try {
     const { id } = req.params || {};
-    const template = await Template.findById(id);
+    const template = await Template.findById(id).populate("posts");
     res.status(200).json(template);
   } catch (err) {
     console.error(err);

@@ -7,6 +7,10 @@ import { Link } from "react-router-dom";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import Loading from "../../../components/shared/Loading";
 import {
+  useGetPostsQuery,
+  useReschedulePostMutation,
+} from "../../../features/post/postApi";
+import {
   useCreateTemplateFolderMutation,
   useCreateTemplateMutation,
   useGetTemplateFoldersQuery,
@@ -14,27 +18,8 @@ import {
   useImportTemplateMutation,
 } from "../../../features/template/templateApi";
 
-function onChange(value, dateString) {
-  console.log("Selected Time: ", value);
-  console.log("Formatted Selected Time: ", dateString);
-}
-
-function onOk(value) {
-  console.log("onOk: ", value);
-}
-
 const TemplateFacebook = () => {
-  const [modal2Open, setModal2Open] = useState(false);
   const [open5, setOpen5] = useState(false);
-
-  const showModal5 = () => {
-    setOpen5(true);
-  };
-
-  const handleOk5 = (e) => {
-    console.log(e);
-    setOpen5(false);
-  };
 
   const handleCancel5 = (e) => {
     console.log(e);
@@ -68,15 +53,6 @@ const TemplateFacebook = () => {
   const handleCancel2 = (e) => {
     console.log(e);
     setOpen2(false);
-  };
-  const [formData, setFormData] = useState({
-    description: "",
-    title: "",
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
   };
 
   // all necessary states
@@ -215,6 +191,56 @@ const TemplateFacebook = () => {
 
     importTemplate({ code, type: "facebook" });
   };
+
+  // get all unpublished posts
+  const { data: posts, refetch } = useGetPostsQuery("facebook");
+
+  // reschedule post
+  const [activePost, setActivePost] = useState({});
+  const [dateTime, setDateTime] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+
+  function onChange(value, dateString) {
+    setDateTime(dateString);
+  }
+
+  useEffect(() => {
+    if (dateTime) {
+      const currentDate = dateTime.split(" ")[0];
+      const day = currentDate.split("-")[2];
+      const month = currentDate.split("-")[1];
+      const year = currentDate.split("-")[0];
+      setDate(`${day}-${month}-${year}`);
+
+      const currentTime = `${dateTime.split(" ")[1].split(":")[0]}:${
+        dateTime.split(" ")[1].split(":")[1]
+      }`;
+      setTime(currentTime);
+    }
+  }, [dateTime]);
+
+  const [
+    reschedulePost,
+    { data: reschedulePostDate, isLoading: reschedulePostLoading },
+  ] = useReschedulePostMutation();
+
+  useEffect(() => {
+    if (!reschedulePostLoading && reschedulePostDate?._id) {
+      toast.success("Post Reschedule successfully!");
+      refetch();
+      setActivePost({});
+      setTime("");
+      setDate("");
+      setDateTime("");
+    }
+  }, [reschedulePostDate, reschedulePostLoading, refetch]);
+
+  // submit handler
+  const reschedulePostHandler = () => {
+    reschedulePost({ id: activePost?._id, data: { date, time } });
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-y-10 items-start justify-start">
@@ -394,20 +420,55 @@ const TemplateFacebook = () => {
             </svg>
             <p className="text-[25px] font-[500]">Your Scheduled Posts</p>
           </div>
-          <div className="w-[296px] h-[153px] flex items-center justify-center border border-[#ADADAD]">
-            <img
-              src="/images/meet.jpg"
-              alt=""
-              className="w-[270px] h-[130px] object-cover"
-            />
+
+          {/* all unpublished posts */}
+          <div className="grid grid-cols-3 gap-5">
+            {posts?.map((post) => (
+              <div key={post?._id}>
+                <div className="w-full h-[153px] flex items-center justify-center border border-[#ADADAD] p-5">
+                  {post?.attachmentType === "image" && (
+                    <img
+                      src={`${process.env.REACT_APP_API_URL}${post?.attachments[0]}`}
+                      alt=""
+                      className="w-full h-[130px] object-cover"
+                    />
+                  )}
+
+                  {post?.attachmentType === "album" && (
+                    <img
+                      src={post?.attachments[0]}
+                      alt=""
+                      className="w-full h-[130px] object-cover"
+                    />
+                  )}
+
+                  {post?.attachmentType === "link" && (
+                    <img
+                      src={post?.attachments[0]}
+                      alt=""
+                      className="w-full h-[130px] object-cover"
+                    />
+                  )}
+
+                  {post?.attachmentType === "video" && (
+                    <video
+                      className="w-full h-[130px] object-cover"
+                      src={`${process.env.REACT_APP_API_URL}${post?.attachments[0]}`}
+                    ></video>
+                  )}
+                </div>
+                <p className="text-[#7E97A5] pt-3">
+                  {post?.date} {post?.time}
+                </p>
+                <button
+                  onClick={() => setActivePost(post)}
+                  className="w-[151px] mt-5 h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
+                >
+                  Reschedule
+                </button>
+              </div>
+            ))}
           </div>
-          <p className="text-[#7E97A5] pt-3">Sep 6, 2023 6:00PM</p>
-          <button
-            onClick={showModal5}
-            className="w-[151px] mt-5 h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
-          >
-            Reschedule
-          </button>
         </div>
       </div>
 
@@ -603,7 +664,7 @@ const TemplateFacebook = () => {
       <Modal
         title={null}
         closable={false}
-        visible={open5}
+        visible={activePost?._id}
         centered
         onCancel={handleCancel5}
         width={700}
@@ -612,14 +673,14 @@ const TemplateFacebook = () => {
           <Button
             key="cancel"
             className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
-            onClick={handleOk5}
+            onClick={reschedulePostHandler}
           >
             Ok
           </Button>,
           <Button
             key="cancel"
             className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
-            onClick={handleCancel5}
+            onClick={() => setActivePost({})}
           >
             Cancel
           </Button>,
@@ -635,20 +696,56 @@ const TemplateFacebook = () => {
             onClick={() => setShowCalendar(!showCalendar)}
           >
             <div className="flex items-start gap-5">
-              <img
-                src="/images/meet.jpg"
-                alt=""
-                className="w-[100px] h-[100px] object-cover"
-              />
-              <p className="text-[18px] font-[700]">Post 1</p>
+              {activePost?.attachmentType === "image" && (
+                <img
+                  src={`${process.env.REACT_APP_API_URL}${activePost?.attachments[0]}`}
+                  alt=""
+                  className="h-[130px] object-cover"
+                />
+              )}
+
+              {activePost?.attachmentType === "album" && (
+                <img
+                  src={activePost?.attachments[0]}
+                  alt=""
+                  className="h-[130px] object-cover"
+                />
+              )}
+
+              {activePost?.attachmentType === "link" && (
+                <img
+                  src={activePost?.attachments[0]}
+                  alt=""
+                  className="h-[130px] object-cover"
+                />
+              )}
+
+              {activePost?.attachmentType === "video" && (
+                <video
+                  className="h-[130px] object-cover"
+                  src={`${process.env.REACT_APP_API_URL}${activePost?.attachments[0]}`}
+                ></video>
+              )}
+              <div>
+                <p className="text-[18px] font-[700]">{activePost?.title}</p>
+                <p className="text-[18px]">{activePost?.description}</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-[18px]">Date: </p>
+                  <p className="text-[18px]">{activePost?.date}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p className="text-[18px]">Time: </p>
+                  <p className="text-[18px]">{activePost?.time}</p>
+                </div>
+              </div>
             </div>
           </div>
 
           {showCalendar && (
             <div className="mt-2 p-2 flex items-center gap-3 rounded-lg shadow-md">
-              <DatePicker showTime onChange={onChange} onOk={onOk} />
+              <DatePicker showTime onChange={onChange} />
               <button
-                onClick={() => setModal2Open(false)}
+                onClick={reschedulePostHandler}
                 className="w-[151px]  h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
               >
                 Reschedule

@@ -21,15 +21,8 @@ const postScheduler = cron.schedule("* * * * *", async () => {
 
   const time = `${hours}:${minutes}`;
 
-  console.log("time", time);
-  console.log("date", currentDate);
-
-  console.log("run");
-
   try {
     const postsToPublish = await Post.find({ date: currentDate, time });
-
-    console.log("postsToPublish", postsToPublish);
 
     if (postsToPublish.length > 0) {
       for (const post of postsToPublish) {

@@ -6,6 +6,7 @@ import { IoMdCopy } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import Loading from "../../../components/shared/Loading";
+import { useDeletePostMutation } from "../../../features/post/postApi";
 import {
   useDeleteTemplateMutation,
   useDublicateTemplateMutation,
@@ -54,10 +55,6 @@ const Post = () => {
     console.log(e);
     setOpen3(false);
   };
-  const handleOk2 = (e) => {
-    console.log(e);
-    setOpen2(false);
-  };
 
   const handleCancel2 = (e) => {
     console.log(e);
@@ -78,7 +75,7 @@ const Post = () => {
     setOpen6(false);
   };
 
-  const items = [
+  const items = (id) => [
     {
       key: "1",
       label: "Edit",
@@ -94,6 +91,7 @@ const Post = () => {
     {
       key: "4",
       label: "Delete",
+      onClick: () => deletePost(id),
     },
     {
       key: "5",
@@ -121,7 +119,7 @@ const Post = () => {
 
   // get single template
   const { id } = useParams();
-  const { data: template } = useGetSingleTemplateQuery(id);
+  const { data: template, refetch } = useGetSingleTemplateQuery(id);
 
   // get template folders
   const { data: templateFolders } = useGetTemplateFoldersQuery("facebook");
@@ -205,6 +203,17 @@ const Post = () => {
       navigate("/dashboard/facebooktemplate/facebook-template");
     }
   }, [deletedTemplate, deleteTemplateLoading, navigate]);
+
+  // delete post
+  const [deletePost, { data: deletedPost, isLoading: deletePostLoading }] =
+    useDeletePostMutation();
+
+  useEffect(() => {
+    if (!deletePostLoading && deletedPost?._id) {
+      toast.success("Post Deleted Successfully");
+      refetch();
+    }
+  }, [deletedPost, deletePostLoading, refetch]);
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-y-10 items-start justify-start w-full">
@@ -284,58 +293,103 @@ const Post = () => {
             </div>
           </div>
 
-          <div
-            className="mt-4 p-4 rounded-[9px] flex justify-between items-center w-full"
-            style={{ background: "rgba(173, 173, 173, 0.06)" }}
-          >
-            <div className="flex items-start gap-5">
-              <div className="bg-[#D9D9D9] w-[58px] h-[58px] flex justify-center items-center">
-                <p className="text-white text-[13px]">[image]</p>
-              </div>
-              <p className="text-[13px] font-[700]">Post 1</p>
-            </div>
+          <div className="w-full">
+            {template?.posts?.map((post) => (
+              <div
+                className="mt-4 p-4 rounded-[9px] flex justify-between items-center w-full"
+                style={{ background: "rgba(173, 173, 173, 0.06)" }}
+              >
+                <div className="flex items-start gap-5">
+                  <div className="bg-[#D9D9D9] w-[58px] h-[58px] flex justify-center items-center">
+                    {post?.attachmentType === "image" && (
+                      <img
+                        src={`${process.env.REACT_APP_API_URL}${post?.attachments[0]}`}
+                        alt=""
+                      />
+                    )}
 
-            <div>
-              <div>
-                <Dropdown
-                  menu={{
-                    items,
-                    selectable: false,
-                    defaultSelectedKeys: null,
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="23"
-                    height="16"
-                    viewBox="0 0 23 16"
-                    fill="none"
-                  >
-                    <line
-                      y1="1"
-                      x2="23"
-                      y2="1"
-                      stroke="black"
-                      stroke-width="2"
-                    />
-                    <line
-                      y1="8"
-                      x2="23"
-                      y2="8"
-                      stroke="black"
-                      stroke-width="2"
-                    />
-                    <line
-                      y1="15"
-                      x2="23"
-                      y2="15"
-                      stroke="black"
-                      stroke-width="2"
-                    />
-                  </svg>
-                </Dropdown>
+                    {post?.attachmentType === "album" && (
+                      <img src={post?.attachments[0]} alt="" />
+                    )}
+
+                    {post?.attachmentType === "link" && (
+                      <img src={post?.attachments[0]} alt="" />
+                    )}
+
+                    {post?.attachmentType === "video" && (
+                      <video
+                        src={`${process.env.REACT_APP_API_URL}${post?.attachments[0]}`}
+                      ></video>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-[700]">{post?.title}</p>
+                    <p className="text-[13px] font-[700] mt-2">
+                      {post?.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <h3 className="font-semibold text-sm">Schedule Date:</h3>
+                  <p className="text-sm">{post?.date}</p>
+                </div>
+
+                <div className="text-center">
+                  <h3 className="font-semibold text-sm">Schedule Time:</h3>
+                  <p className="text-sm">{post?.time}</p>
+                </div>
+
+                <div className="text-center">
+                  <h3 className="font-semibold text-sm">Status:</h3>
+                  <p className="text-sm">
+                    {post?.published ? "Published" : "Unpublished"}
+                  </p>
+                </div>
+
+                <div>
+                  <div>
+                    <Dropdown
+                      menu={{
+                        items: items(post?._id),
+                        selectable: false,
+                        defaultSelectedKeys: null,
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="23"
+                        height="16"
+                        viewBox="0 0 23 16"
+                        fill="none"
+                      >
+                        <line
+                          y1="1"
+                          x2="23"
+                          y2="1"
+                          stroke="black"
+                          stroke-width="2"
+                        />
+                        <line
+                          y1="8"
+                          x2="23"
+                          y2="8"
+                          stroke="black"
+                          stroke-width="2"
+                        />
+                        <line
+                          y1="15"
+                          x2="23"
+                          y2="15"
+                          stroke="black"
+                          stroke-width="2"
+                        />
+                      </svg>
+                    </Dropdown>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -358,7 +412,7 @@ const Post = () => {
         className="scrollbar"
         footer={[]}
       >
-        <CreatePost handleCancel={handleCancel2} />
+        <CreatePost refetch={refetch} handleCancel={handleCancel2} />
       </Modal>
 
       <Modal
