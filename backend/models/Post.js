@@ -22,6 +22,10 @@ const postSchema = new Schema(
     title: String,
     description: String,
     attachmentType: String,
+    team: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
+    },
     attachments: {
       type: [String],
     },

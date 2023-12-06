@@ -20,8 +20,18 @@ const getSingleTemplateController = async (req, res) => {
 const getAllTemplatesController = async (req, res) => {
   try {
     const { _id } = req.user || {};
-    const { type } = req.params || {};
-    const templates = await Template.find({ user: _id, type });
+    const { type, team, user } = req.params || {};
+    let templates;
+
+    if (team && team !== "not-found") {
+      templates = await Template.find({ team, type });
+    } else {
+      templates = await Template.find({
+        user: user !== "not-found" ? user : _id,
+        type,
+      });
+    }
+
     res.status(200).json(templates);
   } catch (err) {
     console.error(err);
@@ -35,8 +45,18 @@ const getAllTemplatesController = async (req, res) => {
 const getAllTemplatesFolderController = async (req, res) => {
   try {
     const { _id } = req.user || {};
-    const { type } = req.params || {};
-    const templateFolders = await TemplateFolder.find({ user: _id, type });
+    const { type, team, user } = req.params || {};
+    let templateFolders;
+
+    if (team && team !== "not-found") {
+      templateFolders = await TemplateFolder.find({ team, type });
+    } else {
+      templateFolders = await TemplateFolder.find({
+        user: user !== "not-found" ? user : _id,
+        type,
+      });
+    }
+
     res.status(200).json(templateFolders);
   } catch (err) {
     console.error(err);
@@ -50,14 +70,15 @@ const getAllTemplatesFolderController = async (req, res) => {
 const createNewTemplateFolderController = async (req, res) => {
   try {
     const { _id } = req.user || {};
-    const { title, type } = req.body || {};
+    const { title, type, team, user } = req.body || {};
 
     // create new folder
     const newFolder = new TemplateFolder({
       title,
-      user: _id,
+      user: user || _id,
       templates: [],
       type,
+      team,
     });
 
     await newFolder.save();
@@ -75,8 +96,7 @@ const createNewTemplateFolderController = async (req, res) => {
 const createNewTemplateController = async (req, res) => {
   try {
     const { _id } = req.user || {};
-    const { title, description, type } = req.body || {};
-    console.log("hello");
+    const { title, description, type, team, user } = req.body || {};
 
     // generate template unique code
     const code = crypto.randomBytes(4).toString("hex");
@@ -85,17 +105,18 @@ const createNewTemplateController = async (req, res) => {
     const newTemplate = new Template({
       title,
       description,
-      user: _id,
+      user: user || _id,
       code,
       type,
+      team,
     });
 
     await newTemplate.save();
 
     // update user model
-    const user = await User.findById(_id);
-    user.templates = [...user?.templates, newTemplate?._id];
-    await user.save();
+    const newUser = await User.findById(_id);
+    newUser.templates = [...newUser?.templates, newTemplate?._id];
+    await newUser.save();
 
     res.status(201).json(newTemplate);
   } catch (err) {

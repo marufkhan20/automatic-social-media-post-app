@@ -6,7 +6,8 @@ export const postApi = apiSlice.injectEndpoints({
       query: (id) => `/api/posts/single-post/${id}`,
     }),
     getPosts: builder.query({
-      query: (type) => `/api/posts/all-posts/${type}`,
+      query: ({ type, team, user }) =>
+        `/api/posts/all-posts/${type}/${team}/${user}`,
       providesTags: ["getPosts"],
     }),
     createPost: builder.mutation({

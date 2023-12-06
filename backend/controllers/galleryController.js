@@ -8,9 +8,19 @@ const fs = require("fs");
 const getAllGalleriesController = async (req, res) => {
   try {
     const { _id } = req.user || {};
-    const { type } = req.params || {};
+    const { type, team, user } = req.params || {};
 
-    const galleries = await Gallery.find({ user: _id, type });
+    let galleries;
+
+    if (team !== "not-found") {
+      galleries = await Gallery.find({ type, team });
+    } else {
+      galleries = await Gallery.find({
+        user: user !== "not-found" ? user : _id,
+        type,
+      });
+    }
+
     res.status(200).json(galleries);
   } catch (err) {
     console.error(err);
@@ -24,14 +34,27 @@ const getAllGalleriesController = async (req, res) => {
 const createNewGalleryController = async (req, res) => {
   try {
     const { _id } = req.user || {};
-    const { folderName, type } = req.body || {};
+    const { folderName, type, team, user: userId } = req.body || {};
 
-    const newGallery = new Gallery({
-      folderName,
-      user: _id,
-      type,
-      resources: [],
-    });
+    let data;
+
+    if (team) {
+      data = {
+        folderName,
+        type,
+        team,
+        resources: [],
+      };
+    } else {
+      data = {
+        folderName,
+        user: userId || _id,
+        type,
+        resources: [],
+      };
+    }
+
+    const newGallery = new Gallery(data);
 
     await newGallery.save();
 

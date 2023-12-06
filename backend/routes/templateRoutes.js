@@ -17,11 +17,15 @@ const router = require("express").Router();
 router.get("/single-template/:id", authMiddleware, getSingleTemplateController);
 
 // get all templates
-router.get("/all-templates/:type", authMiddleware, getAllTemplatesController);
+router.get(
+  "/all-templates/:type/:team/:user",
+  authMiddleware,
+  getAllTemplatesController
+);
 
 // get all template folders
 router.get(
-  "/all-templates-folders/:type",
+  "/all-templates-folders/:type/:team/:user",
   authMiddleware,
   getAllTemplatesFolderController
 );

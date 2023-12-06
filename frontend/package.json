@@ -11,6 +11,8 @@
     "@testing-library/user-event": "^13.5.0",
     "antd": "^5.9.4",
     "chart.js": "^4.4.0",
+    "date-and-time": "^3.0.3",
+    "date-difference": "^1.0.0",
     "draft-js": "^0.11.7",
     "faker": "^6.6.6",
     "next-reveal": "^1.0.6",
@@ -24,6 +26,7 @@
     "react-router-dom": "^6.16.0",
     "react-scripts": "5.0.1",
     "react-timezone-select": "^2.1.2",
+    "socket.io-client": "^4.7.2",
     "spacetime": "^7.4.7",
     "web-vitals": "^2.1.4"
   },

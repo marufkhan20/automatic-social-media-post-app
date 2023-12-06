@@ -1,25 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import AdminLayout from "../../../../components/layout/AdminLayout";
 import { userLoggedOut } from "../../../../features/auth/authSlice";
+import { useUpdatePasswordMutation } from "../../../../features/auth/authApi";
 
 const Management = () => {
-  const [newPassword, setNewPassword] = useState("");
-  const [permission, setPermission] = useState("user");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
-  const handleNewPasswordChange = (e) => {
-    setNewPassword(e.target.value);
-  };
+  const [updatePassword, { data, isLoading, isError, error }] =
+    useUpdatePasswordMutation();
 
-  const handlePermissionChange = (e) => {
-    setPermission(e.target.value);
-  };
+  useEffect(() => {
+    if (!isLoading && isError) {
+      const { data } = error || {};
+      setErrors(data.error);
+    }
 
-  const handleSubmit = (e) => {
+    if (!isLoading && !isError && data?._id) {
+      toast.success("Password Change Successfully");
+      setPassword("");
+      setConfirmPassword("");
+      setErrors({});
+    }
+  }, [data, isLoading, isError, error]);
+
+  // submit handler
+  const submitHandler = (e) => {
     e.preventDefault();
-    console.log(`New Password: ${newPassword}`);
-    console.log(`Permission: ${permission}`);
+
+    // validation
+    const validationErrors = {};
+
+    if (!password) {
+      validationErrors.password = "Password is required!!";
+    }
+
+    if (!confirmPassword) {
+      validationErrors.confirmPassword = "Confirm Password is required!!";
+    } else if (password !== confirmPassword) {
+      validationErrors.confirmPassword =
+        "Password and Confirm Password Doesn't Match!!";
+    }
+
+    if (Object.keys(validationErrors)?.length > 0) {
+      return setErrors(validationErrors);
+    }
+
+    updatePassword(password);
   };
 
   // logout handler
@@ -48,28 +78,33 @@ const Management = () => {
               className="bg-white w-full gap-5 rounded-lg p-5 mt-5"
             >
               <p className="text-[20px] text-black font-[600]">
-                Admin Account Settings
+                Change Account Password
               </p>
-              <button className="bg-[#012B6D] rounded-md mt-5 text-white font-[600] text-[20px] py-2 px-10">
+              {/* <button className="bg-[#012B6D] rounded-md mt-5 text-white font-[600] text-[20px] py-2 px-10">
                 Close Settings
-              </button>
+              </button> */}
               <div className="min-w-full mt-5">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={submitHandler}>
                   <div className="mb-4 text-black">
                     <label
                       htmlFor="newPassword"
                       className="block text-[20px] font-medium text-gray-600"
                     >
-                      Change Password:
+                      Password
                     </label>
                     <input
                       type="password"
                       id="newPassword"
                       name="newPassword"
-                      value={newPassword}
-                      onChange={handleNewPasswordChange}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className="block w-full mt-1 p-2 border border-gray-300 focus:outline-none rounded-md focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                     />
+                    {errors?.password && (
+                      <p className="text-red-500 font-medium mt-3">
+                        {errors?.password}
+                      </p>
+                    )}
                   </div>
 
                   <div className="mb-4">
@@ -77,19 +112,22 @@ const Management = () => {
                       htmlFor="permission"
                       className="block text-[20px] font-medium text-gray-600"
                     >
-                      Change Permissions:
+                      Confirm Password
                     </label>
-                    <select
+                    <input
                       id="permission"
-                      name="permission"
-                      value={permission}
-                      onChange={handlePermissionChange}
+                      name="confirm password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       className="block w-full mt-1 p-2 border text-black focus:outline-none border-gray-300 rounded-md focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    >
-                      <option value="user">User</option>
-                      <option value="manager">Manager</option>
-                    </select>
+                    />
                   </div>
+                  {errors?.confirmPassword && (
+                    <p className="text-red-500 font-medium mt-3">
+                      {errors?.confirmPassword}
+                    </p>
+                  )}
 
                   <div className="mt-7">
                     <button

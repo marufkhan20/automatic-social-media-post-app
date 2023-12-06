@@ -3,9 +3,14 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
 import { PiFolderOpen } from "react-icons/pi";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import Loading from "../../../components/shared/Loading";
+import {
+  useGetPostsQuery,
+  useReschedulePostMutation,
+} from "../../../features/post/postApi";
 import {
   useCreateTemplateFolderMutation,
   useCreateTemplateMutation,
@@ -13,28 +18,15 @@ import {
   useGetTemplatesQuery,
   useImportTemplateMutation,
 } from "../../../features/template/templateApi";
-
-function onChange(value, dateString) {
-  console.log("Selected Time: ", value);
-  console.log("Formatted Selected Time: ", dateString);
-}
-
-function onOk(value) {
-  console.log("onOk: ", value);
-}
+import { useGetManageUsersManagersQuery } from "../../../features/user/userApi";
 
 const TemplateInstagram = () => {
-  const [modal2Open, setModal2Open] = useState(false);
+  const { user: userData } = useSelector((state) => state.auth || {});
+  // get active user send request
+  const { data: activeUsers } = useGetManageUsersManagersQuery("active");
+
   const [open5, setOpen5] = useState(false);
-
-  const showModal5 = () => {
-    setOpen5(true);
-  };
-
-  const handleOk5 = (e) => {
-    console.log(e);
-    setOpen5(false);
-  };
+  const [user, setUser] = useState(false);
 
   const handleCancel5 = (e) => {
     console.log(e);
@@ -69,22 +61,20 @@ const TemplateInstagram = () => {
     console.log(e);
     setOpen2(false);
   };
-  const [formData, setFormData] = useState({
-    description: "",
-    title: "",
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-  };
 
   // all necessary states
   const [filter, setFilter] = useState("all");
 
   // create folder and get folders
-  const { data: folders, isLoading: folderLoading } =
-    useGetTemplateFoldersQuery("instagram");
+  const {
+    data: folders,
+    isLoading: folderLoading,
+    refetch: templateFolderRefetch,
+  } = useGetTemplateFoldersQuery({
+    type: "instagram",
+    team: "not-found",
+    user: user || "not-found",
+  });
 
   const [folderTitle, setFolderTitle] = useState("");
   const [folderError, setFolderError] = useState("");
@@ -118,13 +108,20 @@ const TemplateInstagram = () => {
     createTemplateFolder({
       title: folderTitle,
       type: "instagram",
+      user,
     });
   };
 
   // create template and get template
-  const { data: templates, isLoading: templateLoading } =
-    useGetTemplatesQuery("instagram");
-  console.log("templates", templates);
+  const {
+    data: templates,
+    isLoading: templateLoading,
+    refetch: templateRefetch,
+  } = useGetTemplatesQuery({
+    type: "instagram",
+    team: "not-found",
+    user: user || "not-found",
+  });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -166,6 +163,7 @@ const TemplateInstagram = () => {
       title,
       description,
       type: "instagram",
+      user,
     });
   };
 
@@ -215,6 +213,69 @@ const TemplateInstagram = () => {
 
     importTemplate({ code, type: "instagram" });
   };
+
+  // get all unpublished posts
+  const { data: posts, refetch } = useGetPostsQuery({
+    type: "instagram",
+    team: "not-found",
+    user: user || "not-found",
+  });
+
+  // reschedule post
+  const [activePost, setActivePost] = useState({});
+  const [dateTime, setDateTime] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+
+  function onChange(value, dateString) {
+    setDateTime(dateString);
+  }
+
+  useEffect(() => {
+    if (dateTime) {
+      const currentDate = dateTime.split(" ")[0];
+      const day = currentDate.split("-")[2];
+      const month = currentDate.split("-")[1];
+      const year = currentDate.split("-")[0];
+      setDate(`${day}-${month}-${year}`);
+
+      const currentTime = `${dateTime.split(" ")[1].split(":")[0]}:${
+        dateTime.split(" ")[1].split(":")[1]
+      }`;
+      setTime(currentTime);
+    }
+  }, [dateTime]);
+
+  const [
+    reschedulePost,
+    { data: reschedulePostDate, isLoading: reschedulePostLoading },
+  ] = useReschedulePostMutation();
+
+  useEffect(() => {
+    if (!reschedulePostLoading && reschedulePostDate?._id) {
+      toast.success("Post Reschedule successfully!");
+      refetch();
+      setActivePost({});
+      setTime("");
+      setDate("");
+      setDateTime("");
+    }
+  }, [reschedulePostDate, reschedulePostLoading, refetch]);
+
+  // submit handler
+  const reschedulePostHandler = () => {
+    reschedulePost({ id: activePost?._id, data: { date, time } });
+  };
+
+  // reject data according to user
+  useEffect(() => {
+    if (user) {
+      refetch();
+      templateRefetch();
+      templateFolderRefetch();
+    }
+  }, [refetch, user, templateFolderRefetch, templateRefetch]);
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-y-10 items-start justify-start">
@@ -244,6 +305,27 @@ const TemplateInstagram = () => {
             </svg>
             <p className="text-[25px] font-[500]">Folders</p>
           </div>
+
+          {userData?.role === "manager" && (
+            <div className="w-full mt-2">
+              <select
+                className="appearance-none border rounded w-full py-3 px-3 bg-white leading-tight focus:outline-none focus:-outline"
+                id="firstName"
+                type="text"
+                placeholder="First Name"
+                name="firstName"
+                onChange={(e) => setUser(e.target.value)}
+              >
+                <option value="not-found">Select User</option>
+                {activeUsers?.map((item) => (
+                  <option value={item?.user?._id}>
+                    {item?.user?.firstName} {item?.user?.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="flex md:flex-row flex-col gap-4  items-center w-full my-5">
             <button
               onClick={showModal3}
@@ -313,19 +395,19 @@ const TemplateInstagram = () => {
                   <path
                     d="M20.25 0.337494H6.75002C3.20849 0.337494 0.337521 3.20847 0.337521 6.74999V20.25C0.337521 23.7915 3.20849 26.6625 6.75002 26.6625H20.25C23.7915 26.6625 26.6625 23.7915 26.6625 20.25V6.74999C26.6625 3.20847 23.7915 0.337494 20.25 0.337494ZM6.75002 1.34999H20.25C23.2324 1.34999 25.65 3.76766 25.65 6.74999V20.25C25.65 23.2323 23.2324 25.65 20.25 25.65H6.75002C3.76768 25.65 1.35002 23.2323 1.35002 20.25V6.74999C1.35002 3.76766 3.76768 1.34999 6.75002 1.34999Z"
                     fill="#4A4A4A"
-                  />
+                  ></path>
                   <path
                     d="M13.5 6.24374C9.4925 6.24374 6.24377 9.49248 6.24377 13.5C6.24377 17.5075 9.4925 20.7562 13.5 20.7562C17.5075 20.7562 20.7563 17.5075 20.7563 13.5C20.7563 9.49248 17.5075 6.24374 13.5 6.24374ZM13.5 7.25624C16.9483 7.25624 19.7438 10.0517 19.7438 13.5C19.7438 16.9483 16.9483 19.7437 13.5 19.7437C10.0517 19.7437 7.25627 16.9483 7.25627 13.5C7.25627 10.0517 10.0517 7.25624 13.5 7.25624Z"
                     fill="#4A4A4A"
-                  />
+                  ></path>
                   <path
                     d="M21.9375 2.86874C20.7259 2.86874 19.7438 3.85092 19.7438 5.06249C19.7438 6.27407 20.7259 7.25624 21.9375 7.25624C23.1491 7.25624 24.1313 6.27407 24.1313 5.06249C24.1313 3.85092 23.1491 2.86874 21.9375 2.86874ZM21.9375 3.88124C22.5899 3.88124 23.1188 4.41011 23.1188 5.06249C23.1188 5.71488 22.5899 6.24374 21.9375 6.24374C21.2851 6.24374 20.7563 5.71488 20.7563 5.06249C20.7563 4.41011 21.2851 3.88124 21.9375 3.88124Z"
                     fill="#4A4A4A"
-                  />
+                  ></path>
                 </g>
                 <defs>
                   <clipPath id="clip0_1_6">
-                    <rect width="27" height="27" fill="white" />
+                    <rect width="27" height="27" fill="white"></rect>
                   </clipPath>
                 </defs>
               </svg>
@@ -402,20 +484,55 @@ const TemplateInstagram = () => {
             </svg>
             <p className="text-[25px] font-[500]">Your Scheduled Posts</p>
           </div>
-          <div className="w-[296px] h-[153px] flex items-center justify-center border border-[#ADADAD]">
-            <img
-              src="/images/meet.jpg"
-              alt=""
-              className="w-[270px] h-[130px] object-cover"
-            />
+
+          {/* all unpublished posts */}
+          <div className="grid grid-cols-3 gap-5">
+            {posts?.map((post) => (
+              <div key={post?._id}>
+                <div className="w-full h-[153px] flex items-center justify-center border border-[#ADADAD] p-5">
+                  {post?.attachmentType === "image" && (
+                    <img
+                      src={`${process.env.REACT_APP_API_URL}${post?.attachments[0]}`}
+                      alt=""
+                      className="w-full h-[130px] object-cover"
+                    />
+                  )}
+
+                  {post?.attachmentType === "album" && (
+                    <img
+                      src={post?.attachments[0]}
+                      alt=""
+                      className="w-full h-[130px] object-cover"
+                    />
+                  )}
+
+                  {post?.attachmentType === "link" && (
+                    <img
+                      src={post?.attachments[0]}
+                      alt=""
+                      className="w-full h-[130px] object-cover"
+                    />
+                  )}
+
+                  {post?.attachmentType === "video" && (
+                    <video
+                      className="w-full h-[130px] object-cover"
+                      src={`${process.env.REACT_APP_API_URL}${post?.attachments[0]}`}
+                    ></video>
+                  )}
+                </div>
+                <p className="text-[#7E97A5] pt-3">
+                  {post?.date} {post?.time}
+                </p>
+                <button
+                  onClick={() => setActivePost(post)}
+                  className="w-[151px] mt-5 h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
+                >
+                  Reschedule
+                </button>
+              </div>
+            ))}
           </div>
-          <p className="text-[#7E97A5] pt-3">Sep 6, 2023 6:00PM</p>
-          <button
-            onClick={showModal5}
-            className="w-[151px] mt-5 h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
-          >
-            Reschedule
-          </button>
         </div>
       </div>
 
@@ -611,7 +728,7 @@ const TemplateInstagram = () => {
       <Modal
         title={null}
         closable={false}
-        visible={open5}
+        visible={activePost?._id}
         centered
         onCancel={handleCancel5}
         width={700}
@@ -620,14 +737,14 @@ const TemplateInstagram = () => {
           <Button
             key="cancel"
             className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
-            onClick={handleOk5}
+            onClick={reschedulePostHandler}
           >
             Ok
           </Button>,
           <Button
             key="cancel"
             className="text-[18px] mt-32 h-[48px] w-[122px] rounded-md border border-[#4A4A4A] text-[#4A4A4A]"
-            onClick={handleCancel5}
+            onClick={() => setActivePost({})}
           >
             Cancel
           </Button>,
@@ -643,20 +760,56 @@ const TemplateInstagram = () => {
             onClick={() => setShowCalendar(!showCalendar)}
           >
             <div className="flex items-start gap-5">
-              <img
-                src="/images/meet.jpg"
-                alt=""
-                className="w-[100px] h-[100px] object-cover"
-              />
-              <p className="text-[18px] font-[700]">Post 1</p>
+              {activePost?.attachmentType === "image" && (
+                <img
+                  src={`${process.env.REACT_APP_API_URL}${activePost?.attachments[0]}`}
+                  alt=""
+                  className="h-[130px] object-cover"
+                />
+              )}
+
+              {activePost?.attachmentType === "album" && (
+                <img
+                  src={activePost?.attachments[0]}
+                  alt=""
+                  className="h-[130px] object-cover"
+                />
+              )}
+
+              {activePost?.attachmentType === "link" && (
+                <img
+                  src={activePost?.attachments[0]}
+                  alt=""
+                  className="h-[130px] object-cover"
+                />
+              )}
+
+              {activePost?.attachmentType === "video" && (
+                <video
+                  className="h-[130px] object-cover"
+                  src={`${process.env.REACT_APP_API_URL}${activePost?.attachments[0]}`}
+                ></video>
+              )}
+              <div>
+                <p className="text-[18px] font-[700]">{activePost?.title}</p>
+                <p className="text-[18px]">{activePost?.description}</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-[18px]">Date: </p>
+                  <p className="text-[18px]">{activePost?.date}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p className="text-[18px]">Time: </p>
+                  <p className="text-[18px]">{activePost?.time}</p>
+                </div>
+              </div>
             </div>
           </div>
 
           {showCalendar && (
             <div className="mt-2 p-2 flex items-center gap-3 rounded-lg shadow-md">
-              <DatePicker showTime onChange={onChange} onOk={onOk} />
+              <DatePicker showTime onChange={onChange} />
               <button
-                onClick={() => setModal2Open(false)}
+                onClick={reschedulePostHandler}
                 className="w-[151px]  h-[35px] rounded-md text-white font-[500] hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0] bg-[#FF5FC0]"
               >
                 Reschedule

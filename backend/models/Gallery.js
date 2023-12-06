@@ -9,6 +9,10 @@ const gallerySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    team: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
+    },
   },
   { timestamps: true }
 );

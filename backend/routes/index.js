@@ -5,4 +5,6 @@ module.exports = {
   templateRoutes: require("./templateRoutes"),
   postRoutes: require("./postRoutes"),
   teamRoutes: require("./teamRoutes"),
+  settingRoutes: require("./settingRoutes"),
+  packageRoutes: require("./packageRoutes"),
 };

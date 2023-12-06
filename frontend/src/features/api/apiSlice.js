@@ -39,6 +39,8 @@ export const apiSlice = createApi({
     "getJoinedTeams",
     "getTeamTemplates",
     "getTeamGalleries",
+    "getManageUsersManagers",
+    "getPackages",
   ],
   endpoints: (builder) => ({}),
 });

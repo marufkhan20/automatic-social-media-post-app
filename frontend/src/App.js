@@ -57,6 +57,8 @@ import ContactDash from "./pages/dashboard/contact/ContactDash";
 import Facebook from "./pages/dashboard/facebooktempteam/Facebook";
 import Image from "./pages/dashboard/imagesteam/Image";
 import InstagramTemp from "./pages/dashboard/instatempteam/InstagramTemp";
+import ManageManagers from "./pages/dashboard/manage-managers/ManageManagers";
+import ManageUsers from "./pages/dashboard/manage-users/ManageUsers";
 import TeamPage from "./pages/dashboard/teampage/TeamPage";
 import Videos from "./pages/dashboard/videostemp/Videos";
 import ForgetPassword from "./pages/forget-password/ForgetPassword";
@@ -147,6 +149,23 @@ function App() {
             }
           />
           <Route
+            path="/dashboard/manage-users"
+            element={
+              <UserPrivateRoute>
+                <ManageUsers />
+              </UserPrivateRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/manage-managers"
+            element={
+              <UserPrivateRoute>
+                <ManageManagers />
+              </UserPrivateRoute>
+            }
+          />
+          <Route
             path="/dashboard/overview"
             element={
               <UserPrivateRoute>
@@ -219,7 +238,7 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/team/image"
+            path="/dashboard/team/:id/image"
             element={
               <UserPrivateRoute>
                 <Image />
@@ -227,7 +246,7 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/team/videos"
+            path="/dashboard/team/:id/videos"
             element={
               <UserPrivateRoute>
                 <Videos />
@@ -252,7 +271,7 @@ function App() {
           />
           <Route path="/dashboard/team/:id" element={<TeamPage />} />
           <Route
-            path="/dashboard/team/facebook-template"
+            path="/dashboard/team/:id/facebook-template"
             element={
               <UserPrivateRoute>
                 <Facebook />
@@ -260,10 +279,26 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/team/instagram-template"
+            path="/dashboard/team/:teamId/facebooktemplate/:id"
+            element={
+              <UserPrivateRoute>
+                <Post />
+              </UserPrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/team/:id/instagram-template"
             element={
               <UserPrivateRoute>
                 <InstagramTemp />
+              </UserPrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/team/:teamId/instagramtemplate/:id"
+            element={
+              <UserPrivateRoute>
+                <Post2 />
               </UserPrivateRoute>
             }
           />

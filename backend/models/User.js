@@ -39,6 +39,24 @@ const userSchema = new Schema(
       type: [Schema.Types.ObjectId],
       ref: "Team",
     },
+    managers: [
+      {
+        manager: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        status: String,
+      },
+    ],
+    users: [
+      {
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        status: String,
+      },
+    ],
   },
   { timestamps: true }
 );

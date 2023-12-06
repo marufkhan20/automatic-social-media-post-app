@@ -8,7 +8,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const router = require("express").Router();
 
 // get all galleries
-router.get("/:type", authMiddleware, getAllGalleriesController);
+router.get("/:type/:team/:user", authMiddleware, getAllGalleriesController);
 
 // create new gallery
 router.post("/create-gallery", authMiddleware, createNewGalleryController);

@@ -3,7 +3,7 @@ import { apiSlice } from "../api/apiSlice";
 export const galleryApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getGalleries: builder.query({
-      query: (type) => `/api/galleries/${type}`,
+      query: ({ type, team, user }) => `/api/galleries/${type}/${team}/${user}`,
       providesTags: ["getGalleries"],
     }),
     createGallery: builder.mutation({

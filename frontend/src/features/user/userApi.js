@@ -7,6 +7,10 @@ export const userApi = apiSlice.injectEndpoints({
       query: (role) => `/api/users/get-users-managers/${role}`,
       providesTags: ["getUsersManagers"],
     }),
+    getManageUsersManagers: builder.query({
+      query: (status) => `/api/users/get-manage-users-managers/${status}`,
+      providesTags: ["getManageUsersManagers"],
+    }),
     updateProfile: builder.mutation({
       query: (data) => ({
         url: `/api/users/update-profile`,
@@ -43,7 +47,29 @@ export const userApi = apiSlice.injectEndpoints({
         }
       },
     }),
+    addManageUser: builder.mutation({
+      query: (data) => ({
+        url: `/api/users/add-manage-user`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["getManageUsersManagers"],
+    }),
+    acceptRejectManageUser: builder.mutation({
+      query: (data) => ({
+        url: `/api/users/accept-reject-manage-user`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["getManageUsersManagers"],
+    }),
   }),
 });
 
-export const { useGetUsersManagersQuery, useUpdateProfileMutation } = userApi;
+export const {
+  useGetUsersManagersQuery,
+  useGetManageUsersManagersQuery,
+  useUpdateProfileMutation,
+  useAddManageUserMutation,
+  useAcceptRejectManageUserMutation,
+} = userApi;

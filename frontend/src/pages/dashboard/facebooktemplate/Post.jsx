@@ -15,6 +15,7 @@ import {
   useMoveToTemplateFolderMutation,
 } from "../../../features/template/templateApi";
 import CreatePost from "./CreatePost";
+import EditPost from "./EditPost";
 
 const Post = () => {
   const [open, setOpen] = useState(false);
@@ -23,6 +24,7 @@ const Post = () => {
   const [open4, setOpen4] = useState(false);
   const [open5, setOpen5] = useState(false);
   const [open6, setOpen6] = useState(false);
+  const [openEdit, setOpenEdit] = useState({});
 
   const showModal = () => {
     setOpen(true);
@@ -75,15 +77,16 @@ const Post = () => {
     setOpen6(false);
   };
 
-  const items = (id) => [
+  const items = (id, post) => [
     {
       key: "1",
       label: "Edit",
+      onClick: () => setOpenEdit(post),
     },
-    {
-      key: "2",
-      label: "Duplicate",
-    },
+    // {
+    //   key: "2",
+    //   label: "Duplicate",
+    // },
     {
       key: "3",
       label: "Review Post",
@@ -118,11 +121,15 @@ const Post = () => {
   };
 
   // get single template
-  const { id } = useParams();
+  const { id, teamId } = useParams();
+
   const { data: template, refetch } = useGetSingleTemplateQuery(id);
 
   // get template folders
-  const { data: templateFolders } = useGetTemplateFoldersQuery("facebook");
+  const { data: templateFolders } = useGetTemplateFoldersQuery({
+    type: "facebook",
+    team: teamId || "not-found",
+  });
 
   // move template folder
   const [moveFolder, setMoveFolder] = useState("");
@@ -351,7 +358,7 @@ const Post = () => {
                   <div>
                     <Dropdown
                       menu={{
-                        items: items(post?._id),
+                        items: items(post?._id, post),
                         selectable: false,
                         defaultSelectedKeys: null,
                       }}
@@ -412,7 +419,36 @@ const Post = () => {
         className="scrollbar"
         footer={[]}
       >
-        <CreatePost refetch={refetch} handleCancel={handleCancel2} />
+        <CreatePost
+          refetch={refetch}
+          handleCancel={handleCancel2}
+          user={template?.user}
+        />
+      </Modal>
+
+      {/* edit post */}
+      <Modal
+        title={null}
+        closable={false}
+        visible={openEdit?._id}
+        centered
+        onCancel={() => setOpenEdit(false)}
+        width={700}
+        style={{
+          maxHeight: "90vh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          borderRadius: "6px",
+        }}
+        wrapClassName="custom-modal" // Apply a custom CSS class to the Modal wrapper
+        className="scrollbar"
+        footer={[]}
+      >
+        <EditPost
+          refetch={refetch}
+          handleCancel={() => setOpenEdit({})}
+          data={openEdit}
+        />
       </Modal>
 
       <Modal

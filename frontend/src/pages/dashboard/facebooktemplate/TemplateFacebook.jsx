@@ -3,7 +3,9 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlinePlus } from "react-icons/ai";
 import { PiFolderOpen } from "react-icons/pi";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import socketIO from "socket.io-client";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import Loading from "../../../components/shared/Loading";
 import {
@@ -17,9 +19,19 @@ import {
   useGetTemplatesQuery,
   useImportTemplateMutation,
 } from "../../../features/template/templateApi";
+import { useGetManageUsersManagersQuery } from "../../../features/user/userApi";
+import { sendNotification } from "../../../utils/notification";
+const socketId = socketIO("http://localhost:4000/", {
+  transports: ["websocket"],
+});
 
 const TemplateFacebook = () => {
+  const { user: userData } = useSelector((state) => state.auth || {});
+  // get active user send request
+  const { data: activeUsers } = useGetManageUsersManagersQuery("active");
+
   const [open5, setOpen5] = useState(false);
+  const [user, setUser] = useState();
 
   const handleCancel5 = (e) => {
     console.log(e);
@@ -59,8 +71,15 @@ const TemplateFacebook = () => {
   const [filter, setFilter] = useState("all");
 
   // create folder and get folders
-  const { data: folders, isLoading: folderLoading } =
-    useGetTemplateFoldersQuery("facebook");
+  const {
+    data: folders,
+    isLoading: folderLoading,
+    refetch: templateFolderRefetch,
+  } = useGetTemplateFoldersQuery({
+    type: "facebook",
+    team: "not-found",
+    user: user || "not-found",
+  });
 
   const [folderTitle, setFolderTitle] = useState("");
   const [folderError, setFolderError] = useState("");
@@ -79,8 +98,12 @@ const TemplateFacebook = () => {
       handleCancel3();
       setFolderTitle("");
       setFolderError("");
+      sendNotification({
+        user: userData,
+        message: "Create Facebook Template Folder",
+      });
     }
-  }, [folder, isLoading, isError, error]);
+  }, [folder, isLoading, isError, error, userData]);
 
   // submit handler
   const submitHandler = (e) => {
@@ -94,13 +117,20 @@ const TemplateFacebook = () => {
     createTemplateFolder({
       title: folderTitle,
       type: "facebook",
+      user,
     });
   };
 
   // create template and get template
-  const { data: templates, isLoading: templateLoading } =
-    useGetTemplatesQuery("facebook");
-  console.log("templates", templates);
+  const {
+    data: templates,
+    isLoading: templateLoading,
+    refetch: templateRefetch,
+  } = useGetTemplatesQuery({
+    type: "facebook",
+    team: "not-found",
+    user: user || "not-found",
+  });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -112,12 +142,16 @@ const TemplateFacebook = () => {
   useEffect(() => {
     if (!templateIsLoading && template?._id) {
       toast.success("Template Created Successfully");
+      sendNotification({
+        user: userData,
+        message: "Create Facebook Template",
+      });
       handleCancel();
       setTitle("");
       setDescription("");
       setTemplateErrors({});
     }
-  }, [template, templateIsLoading]);
+  }, [template, templateIsLoading, userData]);
 
   // submit handler
   const templateSubmitHandler = (e) => {
@@ -142,6 +176,7 @@ const TemplateFacebook = () => {
       title,
       description,
       type: "facebook",
+      user,
     });
   };
 
@@ -193,7 +228,11 @@ const TemplateFacebook = () => {
   };
 
   // get all unpublished posts
-  const { data: posts, refetch } = useGetPostsQuery("facebook");
+  const { data: posts, refetch } = useGetPostsQuery({
+    type: "facebook",
+    team: "not-found",
+    user: user || "not-found",
+  });
 
   // reschedule post
   const [activePost, setActivePost] = useState({});
@@ -241,6 +280,13 @@ const TemplateFacebook = () => {
     reschedulePost({ id: activePost?._id, data: { date, time } });
   };
 
+  // reject data according to user
+  useEffect(() => {
+    refetch();
+    templateRefetch();
+    templateFolderRefetch();
+  }, [refetch, user, templateFolderRefetch, templateRefetch]);
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-y-10 items-start justify-start">
@@ -270,6 +316,27 @@ const TemplateFacebook = () => {
             </svg>
             <p className="text-[25px] font-[500]">Folders</p>
           </div>
+
+          {userData?.role === "manager" && (
+            <div className="w-full mt-2">
+              <select
+                className="appearance-none border rounded w-full py-3 px-3 bg-white leading-tight focus:outline-none focus:-outline"
+                id="firstName"
+                type="text"
+                placeholder="First Name"
+                name="firstName"
+                onChange={(e) => setUser(e.target.value)}
+              >
+                <option value="not-found">Select User</option>
+                {activeUsers?.map((item) => (
+                  <option value={item?.user?._id}>
+                    {item?.user?.firstName} {item?.user?.lastName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="flex md:flex-row flex-col gap-4  items-center w-full my-5">
             <button
               onClick={showModal3}

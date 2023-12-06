@@ -18,6 +18,10 @@ const templateSchema = new Schema(
       type: [Schema.Types.ObjectId],
       ref: "Post",
     },
+    team: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
+    },
   },
   { timestamps: true }
 );
@@ -33,6 +37,10 @@ const templateFolderSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+    team: {
+      type: Schema.Types.ObjectId,
+      ref: "Team",
     },
   },
   { timestamps: true }

@@ -7,11 +7,13 @@ export const templateApi = apiSlice.injectEndpoints({
       providesTags: ["getTemplate"],
     }),
     getTemplates: builder.query({
-      query: (type) => `/api/templates/all-templates/${type}`,
+      query: ({ type, team, user }) =>
+        `/api/templates/all-templates/${type}/${team}/${user}`,
       providesTags: ["getTemplates"],
     }),
     getTemplateFolders: builder.query({
-      query: (type) => `/api/templates/all-templates-folders/${type}`,
+      query: ({ type, team, user }) =>
+        `/api/templates/all-templates-folders/${type}/${team}/${user}`,
       providesTags: ["getTemplateFolders"],
     }),
     createTemplateFolder: builder.mutation({

@@ -6,10 +6,21 @@ const path = require("path");
 // posts controller
 const getPostsController = async (req, res) => {
   try {
-    const { type } = req.params || {};
+    const { type, team, user } = req.params || {};
     const { _id } = req.user || {};
 
-    const posts = await Post.find({ user: _id, type, published: false });
+    let posts;
+
+    if (team && team !== "not-found") {
+      posts = await Post.find({ team, type, published: false });
+    } else {
+      posts = await Post.find({
+        user: user !== "not-found" ? user : _id,
+        type,
+        published: false,
+      });
+    }
+
     res.status(200).json(posts);
   } catch (err) {
     console.error(err);
@@ -46,6 +57,8 @@ const createNewPostController = async (req, res) => {
       type,
       attachmentType,
       attachments,
+      team,
+      user,
     } = req.body || {};
     const { _id } = req.user || {};
 
@@ -58,8 +71,6 @@ const createNewPostController = async (req, res) => {
           attachmentsImages.push(image);
         } else {
           let filePath;
-
-          console.log("file upload", image);
 
           // upload image
           const buffer = Buffer.from(
@@ -88,7 +99,7 @@ const createNewPostController = async (req, res) => {
 
     // create new post
     const newPost = new Post({
-      user: _id,
+      user: user || _id,
       date,
       dateFormat,
       time,
@@ -98,6 +109,7 @@ const createNewPostController = async (req, res) => {
       attachmentType,
       attachments: attachmentType === "image" ? attachmentsImages : attachments,
       template: templateId,
+      team,
     });
 
     await newPost.save();
@@ -165,7 +177,51 @@ const reschedulePostController = async (req, res) => {
 const updatePostController = async (req, res) => {
   try {
     const { id } = req.params || {};
-    const updatedPost = await Post.findOneAndUpdate(id, { $set: req.body });
+    const { attachmentType, attachments } = req.body || {};
+
+    const attachmentsImages = [];
+
+    // upload images
+    if (attachmentType === "image") {
+      attachments?.forEach(async (image) => {
+        if (image?.includes("/storage")) {
+          attachmentsImages.push(image);
+        } else {
+          let filePath;
+
+          // upload image
+          const buffer = Buffer.from(
+            image.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""),
+            "base64"
+          );
+
+          filePath = `${Date.now()}-${Math.round(Math.random() * 1e9)}.png`;
+
+          try {
+            const jimpResp = await Jimp.read(buffer);
+            jimpResp.write(
+              path.resolve(
+                __dirname,
+                `../public/storage/gallery/images/${filePath}`
+              )
+            );
+
+            attachmentsImages.push(`/storage/gallery/images/${filePath}`);
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      });
+    }
+
+    // update data
+    if (attachmentType === "image") {
+      req.body.attachments = attachmentsImages;
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(id, {
+      $set: { ...req.body, published: false },
+    });
     res.status(200).json(updatedPost);
   } catch (err) {
     console.error(err);

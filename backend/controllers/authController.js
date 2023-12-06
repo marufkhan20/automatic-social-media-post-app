@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../services/emailService");
+const Activity = require("../models/Activity");
 
 // register controller
 const registerController = async (req, res) => {
@@ -36,9 +37,20 @@ const registerController = async (req, res) => {
           role,
           email,
           password: hash,
+          managers: [],
+          users: [],
         });
 
         let user = await newUser.save();
+
+        // create new activity
+        const newActivity = new Activity({
+          time: new Date(),
+          user: user?._id,
+          activity: "Create New Account",
+        });
+
+        await newActivity.save();
 
         if (user?._id) {
           res.status(201).json(user);
@@ -68,7 +80,7 @@ const loginController = async (req, res) => {
   }
 
   // check password correct or incorrect
-  bcrypt.compare(password, user.password, function (err, result) {
+  bcrypt.compare(password, user.password, async function (err, result) {
     if (err) {
       return res.status(500).json({
         error: "Server Error Occurred!",
@@ -82,6 +94,15 @@ const loginController = async (req, res) => {
         },
       });
     }
+
+    // create new activity
+    const newActivity = new Activity({
+      time: new Date(),
+      user: user?._id,
+      activity: "Logged in",
+    });
+
+    await newActivity.save();
 
     // prepare the user object to generate token
     const userObject = {
@@ -171,7 +192,6 @@ const resetPasswordController = async (req, res) => {
     const decode = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decode?._id) {
-      console.log("user", decode);
       // password hash
       const saltRounds = 10;
       bcrypt.genSalt(saltRounds, function (err, salt) {
@@ -189,6 +209,15 @@ const resetPasswordController = async (req, res) => {
           user.password = hash;
 
           await user.save();
+
+          // create new activity
+          const newActivity = new Activity({
+            time: new Date(),
+            user: user?._id,
+            activity: "Reset Password",
+          });
+
+          await newActivity.save();
 
           res.status(200).json(user);
         });
@@ -225,6 +254,15 @@ const changePasswordController = async (req, res) => {
         });
 
         if (updatedUser?._id) {
+          // create new activity
+          const newActivity = new Activity({
+            time: new Date(),
+            user: updatedUser?._id,
+            activity: "Change Password",
+          });
+
+          await newActivity.save();
+
           res.status(201).json(updatedUser);
         }
       });

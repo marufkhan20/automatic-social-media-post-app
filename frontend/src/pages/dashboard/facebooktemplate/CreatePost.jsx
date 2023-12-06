@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 import { useGetGalleriesQuery } from "../../../features/gallery/galleryApi";
 import { useCreatePostMutation } from "../../../features/post/postApi";
 
-const CreatePost = ({ handleCancel, refetch }) => {
+const CreatePost = ({ handleCancel, refetch, user }) => {
   // create post state
   const [date, setDate] = useState("");
   const [dateFormat, setDateFormat] = useState("");
@@ -81,11 +81,17 @@ const CreatePost = ({ handleCancel, refetch }) => {
     };
   };
 
-  // get all gallery image
-  const { data: imageGalleries } = useGetGalleriesQuery("image");
-  const { data: videoGalleries } = useGetGalleriesQuery("video");
+  const { id, teamId } = useParams();
 
-  const { id } = useParams();
+  // get all gallery image
+  const { data: imageGalleries } = useGetGalleriesQuery({
+    type: "image",
+    team: teamId || "not-found",
+  });
+  const { data: videoGalleries } = useGetGalleriesQuery({
+    type: "video",
+    team: teamId || "not-found",
+  });
 
   // create new post
   const [createPost, { data: newPost, isLoading, isError, error }] =
@@ -128,9 +134,6 @@ const CreatePost = ({ handleCancel, refetch }) => {
       validationErrors.title = "Title is required!!";
     }
 
-    console.log(validationErrors);
-    console.log("date", date);
-
     if (Object.keys(validationErrors).length > 0) {
       return setErrors(validationErrors);
     }
@@ -155,6 +158,7 @@ const CreatePost = ({ handleCancel, refetch }) => {
           ? [webLink]
           : [],
       minutes,
+      user,
     });
   };
   return (

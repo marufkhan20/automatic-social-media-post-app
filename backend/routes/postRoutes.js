@@ -12,7 +12,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const router = require("express").Router();
 
 // get all posts
-router.get("/all-posts/:type", authMiddleware, getPostsController);
+router.get("/all-posts/:type/:team/:user", authMiddleware, getPostsController);
 
 // get single post
 router.get("/single-post/:id", authMiddleware, getSinglePostController);
