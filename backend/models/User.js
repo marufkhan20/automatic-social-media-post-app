@@ -25,6 +25,14 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    plan: {
+      type: String,
+      default: "Free",
+    },
+    subscriptions: {
+      type: [Schema.Types.ObjectId],
+      ref: "Subscription",
+    },
     business: String,
     timeZone: String,
     galleries: {
@@ -57,6 +65,7 @@ const userSchema = new Schema(
         status: String,
       },
     ],
+    refreshDate: Date,
   },
   { timestamps: true }
 );

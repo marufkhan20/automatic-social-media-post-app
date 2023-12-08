@@ -41,6 +41,7 @@ export const apiSlice = createApi({
     "getTeamGalleries",
     "getManageUsersManagers",
     "getPackages",
+    "getSubscriptions",
   ],
   endpoints: (builder) => ({}),
 });

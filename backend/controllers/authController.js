@@ -112,6 +112,8 @@ const loginController = async (req, res) => {
       profilePic: user?.profilePic,
       email: user.email,
       role: user?.role,
+      plan: user?.plan,
+      refreshDate: user?.refreshDate,
     };
 
     // generate token

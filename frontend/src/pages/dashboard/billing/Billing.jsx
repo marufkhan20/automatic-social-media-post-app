@@ -1,15 +1,25 @@
+import { loadStripe } from "@stripe/stripe-js";
 import { Button, Modal } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
-import { useGetPackagesQuery } from "../../../features/package/packageApi";
+import {
+  useGetPackagesQuery,
+  useGetSubscriptionsByUserQuery,
+  useSubscribePackageMutation,
+} from "../../../features/package/packageApi";
+
+const stripePromise = loadStripe(
+  "pk_test_51LRnDyH3L9RCLevZkESpMP0g8QpUthUItH3qH51rFNDUM5Gx8dBUHBOTsnlGbp5lP63sHsjWljJD4HiGQVWfroAC00Vjoh8CNG"
+);
 
 const Billing = () => {
+  const { user } = useSelector((state) => state.auth || {});
+
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
 
-  const showModal2 = () => {
-    setOpen2(true);
-  };
   const showModal3 = () => {
     setOpen3(true);
   };
@@ -25,6 +35,30 @@ const Billing = () => {
 
   // get all packages
   const { data: packages } = useGetPackagesQuery();
+
+  // subscribe package
+  const [subscribePackage, { data }] = useSubscribePackageMutation();
+
+  useEffect(() => {
+    if (data?.sessionId) {
+      (async () => {
+        const stripe = await stripePromise;
+
+        // Redirect the user to the Stripe Checkout page
+        const result = await stripe.redirectToCheckout({
+          sessionId: data?.sessionId,
+        });
+
+        if (result.error) {
+          toast.error(result.error.message);
+          console.error(result.error.message);
+        }
+      })();
+    }
+  }, [data]);
+
+  // get all subscriptions
+  const { data: subscriptions } = useGetSubscriptionsByUserQuery();
   return (
     <div>
       <DashboardLayout>
@@ -62,11 +96,13 @@ const Billing = () => {
               <div className="px-5">
                 <div className="flex items-center gap-2">
                   <p className="text-[18px] font-[600]">Subscription:</p>
-                  <p className="text-[18px] font-[400]">Free!</p>
+                  <p className="text-[18px] font-[400]">{user?.plan}</p>
                 </div>
                 <div className="flex items-center gap-2 pt-4">
                   <p className="text-[18px] font-[600]">Refresh Date: </p>
-                  <p className="text-[18px] font-[400]">10/04/2023</p>
+                  <p className="text-[18px] font-[400]">
+                    {user?.refreshDate?.split("T")[0]}
+                  </p>
                 </div>
               </div>
             </div>
@@ -96,33 +132,22 @@ const Billing = () => {
             </svg>
             <p className="text-[25px] font-[500]">Billing History</p>
             <div className="flex flex-col gap-4 w-full">
-              <div className="flex justify-between items-center w-full">
-                <div>
-                  <p className="text-[#4A4A4A]">10/10/2023</p>
+              {subscriptions?.map((item) => (
+                <div
+                  className="flex justify-between items-center w-full"
+                  key={item?._id}
+                >
+                  <div>
+                    <p className="text-[#4A4A4A]">
+                      {item?.startDate?.split("T")[0]}
+                    </p>
+                  </div>
+                  <div className="flex gap-5 items-center">
+                    <p className="text-[#4A4A4A]">${item?.price}</p>
+                    <p className="text-[#47C628] w-20">BILLED</p>
+                  </div>
                 </div>
-                <div className="flex gap-5 items-center">
-                  <p className="text-[#4A4A4A]">$40</p>
-                  <p className="text-[#47C628] w-20">BILLED</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center w-full">
-                <div>
-                  <p className="text-[#4A4A4A]">10/11/2023</p>
-                </div>
-                <div className="flex gap-5 items-center">
-                  <p className="text-[#4A4A4A]">$40</p>
-                  <p className="text-[#F4B513] w-20">PENDING</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center  w-full">
-                <div>
-                  <p className="text-[#4A4A4A]">10/12/2023</p>
-                </div>
-                <div className="flex gap-5 items-center">
-                  <p className="text-[#4A4A4A]">$40</p>
-                  <p className="text-[#E40000] w-20">FAILED</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           <div
@@ -163,9 +188,15 @@ const Billing = () => {
                       </p>
                     </div>
                     <button
-                      onClick={showModal2}
+                      onClick={() =>
+                        subscribePackage({
+                          productId: item?.productId,
+                          packageId: item?._id,
+                          userId: user?._id,
+                        })
+                      }
                       className="bg-[#FF5FC0] mb-3  text-white  py-2 px-6 rounded-md focus:outline-none focus:shadow-outline"
-                      type="submit"
+                      // type="submit"
                     >
                       Select
                     </button>

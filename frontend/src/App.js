@@ -33,6 +33,7 @@ import { Toaster } from "react-hot-toast";
 import FacebookLoginButton from "./FacebookLogin";
 import AdminPrivateRoute from "./pages/AdminPrivateRoute";
 import PublicRoute from "./pages/PublicRoute";
+import Success from "./pages/Success";
 import UserPrivateRoute from "./pages/UserPrivateRoute";
 import Management from "./pages/admin/dashboard/account-management/Management";
 import Activity from "./pages/admin/dashboard/activity/Activity";
@@ -325,6 +326,10 @@ function App() {
                 <Billing />
               </UserPrivateRoute>
             }
+          />
+          <Route
+            path="/success/:token/:userId/:packageId/:tokendata"
+            element={<Success />}
           />
           <Route
             path="/dashboard/getting-started"

@@ -4,6 +4,7 @@ const packageSchema = new Schema(
   {
     name: String,
     price: String,
+    productId: String,
     offers: [
       {
         type: Object,

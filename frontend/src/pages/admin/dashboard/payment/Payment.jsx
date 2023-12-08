@@ -12,6 +12,7 @@ const Payment = () => {
   const [openModal, setOpenModal] = useState(false);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [productId, setProductId] = useState("");
   const [offers, setOffers] = useState([]);
   const [errors, setErrors] = useState({});
 
@@ -62,6 +63,7 @@ const Payment = () => {
       setName("");
       setPrice("");
       setOffers([]);
+      setProductId("");
     }
   }, [packageData, isLoading, isError, error]);
 
@@ -80,6 +82,10 @@ const Payment = () => {
       validationErrors.price = "Package Price is required!!";
     }
 
+    if (!productId) {
+      validationErrors.productId = "Product Id is required!!";
+    }
+
     if (offers?.length === 0) {
       validationErrors.offer = "Please add package offer!!";
     }
@@ -92,6 +98,7 @@ const Payment = () => {
       name,
       price,
       offers,
+      productId,
     });
   };
 
@@ -130,6 +137,9 @@ const Payment = () => {
                   <th className="px-6 py-3 bg-white border-r  font-[600] md:text-[20px]   text-black uppercase tracking-wider">
                     Price
                   </th>
+                  <th className="px-6 py-3 bg-white border-r  font-[600] md:text-[20px]   text-black uppercase tracking-wider">
+                    Product Id
+                  </th>
                   <th className="px-6 py-3 bg-white  font-[600] md:text-[20px]   text-black uppercase tracking-wider">
                     Action
                   </th>
@@ -146,6 +156,9 @@ const Payment = () => {
                     </td>
                     <td className="md:px-6 py-4 md:text-[20px] whitespace-no-wrap border-r text-black">
                       ${item?.price}
+                    </td>
+                    <td className="md:px-6 py-4 md:text-[20px] whitespace-no-wrap border-r text-black">
+                      {item?.productId || "Not Found"}
                     </td>
                     <td className="md:px-6 py-4 md:text-[20px] whitespace-no-wrap  text-black">
                       <button
@@ -258,6 +271,29 @@ const Payment = () => {
                   </p>
                 )}
               </div>
+              <div className="w-full">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="productId"
+                >
+                  Product Id
+                </label>
+                <input
+                  type="text"
+                  id="productId"
+                  name="productId"
+                  placeholder=""
+                  className="w-full bg-gray-100 border border-gray-300 rounded-md p-2 outline-none"
+                  value={productId}
+                  onChange={(e) => setProductId(e.target.value)}
+                />
+                {errors?.productId && (
+                  <p className="text-red-500 font-medium mt-3">
+                    {errors?.productId}
+                  </p>
+                )}
+              </div>
+
               <div className="w-full">
                 <label
                   className="block text-gray-700 text-sm font-bold mb-2"

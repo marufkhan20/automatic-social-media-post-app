@@ -15,8 +15,8 @@ const Activity = () => {
               All Activities
             </h1>
           </div>
-          <div className="bg-white w-full px-3 rounded-md mt-6 overflow-x-scroll md:overflow-hidden overflow-y-hidden">
-            <table className="min-w-full text-center  ">
+          <div className="bg-white w-full px-3 rounded-md mt-6 overflow-x-scroll overflow-y-scroll h-full">
+            <table className="min-w-full text-center">
               <thead className="border-b w-full">
                 <tr>
                   <th className="px-6 py-3 bg-white border-r font-[600]  md:text-[20px]   text-black uppercase tracking-wider">
