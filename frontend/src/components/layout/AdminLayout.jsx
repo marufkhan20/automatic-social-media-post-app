@@ -1,39 +1,32 @@
+import { Dropdown, Menu } from "antd";
 import React, { useState } from "react";
-import { AiOutlineClose, AiOutlineQuestionCircle, AiOutlineSchedule, AiOutlineSearch } from "react-icons/ai";
+import {
+  AiOutlineBook,
+  AiOutlineClose,
+  AiOutlineMail,
+  AiOutlineQuestionCircle,
+  AiOutlineSchedule,
+  AiOutlineSearch,
+} from "react-icons/ai";
 import { BiBell, BiLogoInstagram, BiUser } from "react-icons/bi";
 import { BsInfoCircle } from "react-icons/bs";
 import { FiMenu, FiMoon, FiSun } from "react-icons/fi";
-import { Menu, Dropdown } from "antd";
-import { AiOutlineBook, AiOutlineMail } from "react-icons/ai";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 
 import {
-  NotificationOutlined,
-  HeartOutlined,
-  LogoutOutlined,
-  CarryOutOutlined,
   BarChartOutlined,
-  FileOutlined,
+  CarryOutOutlined,
   CreditCardOutlined,
-  QuestionCircleOutlined,
-  UserOutlined,
-  MailOutlined,
-  SettingOutlined,
+  HeartOutlined,
   HomeOutlined,
+  LogoutOutlined,
+  NotificationOutlined,
+  QuestionCircleOutlined,
+  SettingOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
-import { HiMenu } from 'react-icons/hi'
-import { CgMenuRightAlt } from 'react-icons/cg'
 import { CiFacebook, CiImageOn } from "react-icons/ci";
-function getItem(label, key, icon, children, type) {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    type,
-  };
-}
 
 const items = [
   {
@@ -41,91 +34,72 @@ const items = [
     key: "sub1",
     icon: <HomeOutlined />,
     links: "/admin",
-
   },
   {
     label: "User Management",
     key: "sub2",
     icon: <UserOutlined />,
     links: "/user-management",
-
   },
   {
     label: "Manager Management",
     key: "sub2",
     icon: <UserOutlined />,
     links: "/manager-management",
-
   },
-  {
-    label: "Support & Help Desk",
-    key: "sub3",
-    icon: <QuestionCircleOutlined />,
-    links: "/support-help-desk",
-
-  },
+  // {
+  //   label: "Support & Help Desk",
+  //   key: "sub3",
+  //   icon: <QuestionCircleOutlined />,
+  //   links: "/support-help-desk",
+  // },
   {
     label: "Payment & Subscription",
     key: "sub4",
     icon: <CreditCardOutlined />,
     links: "/payment-subscription",
-
-  },
-  {
-    label: "Content Template",
-    key: "sub5",
-    icon: <FileOutlined />,
-    links: "/content-template",
-
   },
   {
     label: "Report & Analytics",
     key: "sub6",
     icon: <BarChartOutlined />,
     links: "/report-analytics",
-
   },
   {
     label: "Settings",
     key: "sub7",
     icon: <SettingOutlined />,
     links: "/settings",
-
   },
   {
     label: "All Activities",
     key: "sub8",
     icon: <CarryOutOutlined />,
     links: "/all-activities",
-
   },
   {
     label: "Logout & Account Management",
     key: "sub9",
     icon: <LogoutOutlined />,
     links: "/logout-account-management",
-
   },
   {
     label: "System Health Monitoring",
     key: "sub10",
     icon: <HeartOutlined />,
     links: "/system-health-monitoring",
-
   },
   {
     label: "Notifications",
     key: "sub11",
     icon: <NotificationOutlined />,
     links: "/notifications",
-
   },
   {
     label: "Help & Documentation",
     key: "sub11",
     icon: <QuestionCircleOutlined />,
     links: "/help-documentation",
-
   },
 ];
 
@@ -142,7 +116,6 @@ const AdminLayout = ({ children }) => {
         <Link to="/help-documentation">Documentation</Link>
       </Menu.Item>
       <Menu.Item key="support" icon={<BsInfoCircle size={18} />}>
-
         <Link to="/support-help-desk">Support Site</Link>
       </Menu.Item>
       <Menu.Item key="contact" icon={<AiOutlineMail size={18} />}>
@@ -171,29 +144,31 @@ const AdminLayout = ({ children }) => {
     </Menu>
   );
   const menu3 = (
-    <Menu onClick={handleMenuClick3} >
-      <p className="text-[18px] font-semibold py-3 px-5">
-        Notifications
-      </p>
-      {
-        Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="w-full border-b border-gray-500/30 py-2 pl-3 max-w-[300px] flex items-center gap-3">
-            <img src="/images/user1.png" alt="" className="w-[30px] h-[30px] rounded-full object-cover" />
-            <div className="flex flex-col">
-              <p>
-                Lorem ipsum dolor sit amet ipsum adipisicing elit.
-              </p>
-              <p className="text-left text-xs text-gray-400">
-                just now
-
-              </p>
-
-            </div>
+    <Menu onClick={handleMenuClick3}>
+      <p className="text-[18px] font-semibold py-3 px-5">Notifications</p>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="w-full border-b border-gray-500/30 py-2 pl-3 max-w-[300px] flex items-center gap-3"
+        >
+          <img
+            src="/images/user1.png"
+            alt=""
+            className="w-[30px] h-[30px] rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <p>Lorem ipsum dolor sit amet ipsum adipisicing elit.</p>
+            <p className="text-left text-xs text-gray-400">just now</p>
           </div>
-        ))
-      }
+        </div>
+      ))}
       <Menu.Item key="contact">
-        <Link to="/notifications" className="text-[16px] flex py-3 items-center justify-center font-semibold text-center">See all notifications</Link>
+        <Link
+          to="/notifications"
+          className="text-[16px] flex py-3 items-center justify-center font-semibold text-center"
+        >
+          See all notifications
+        </Link>
       </Menu.Item>
     </Menu>
   );
@@ -203,12 +178,6 @@ const AdminLayout = ({ children }) => {
     // Toggle between 'light' and 'dark' modes
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
-  const [current, setCurrent] = useState("1");
-
-  const onClick = (e) => {
-    console.log("click ", e);
-    setCurrent(e.key);
-  };
 
   // Define CSS classes for light and dark modes
   const sidebarClass =
@@ -217,16 +186,12 @@ const AdminLayout = ({ children }) => {
   const childClass = mode === "light" ? "bg-[#111729] text-white" : "bg-white";
   const searchClass = mode === "light" ? " text-white" : " text-black";
   const dropdownClass = mode === "light" ? " text-white" : " text-black";
-  const menuClass = mode === "light" ? " bg-[#111729]" : " bg-white";
-  const iconClass = mode === "light" ? " text-black" : " text-white";
   const [nav, setNav] = useState(false);
 
   const handleNavbar = () => {
     setNav(!nav);
   };
-  const closeMenu = () => {
-    setNav(false);
-  };
+
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const isAdminActive = location.pathname === "/admin";
@@ -273,26 +238,25 @@ const AdminLayout = ({ children }) => {
             }
           >
             <div className="flex flex-col gap-4 p-5">
-
               {items.map((item, index) => (
-                <div key={index} className="flex text-[18px] items-center gap-3">
-                  <div>
-                    {item.icon}
-                  </div>
-                  <Link to={item.links}>
-                    {item.label}
-                  </Link>
+                <div
+                  key={index}
+                  className="flex text-[18px] items-center gap-3"
+                >
+                  <div>{item.icon}</div>
+                  <Link to={item.links}>{item.label}</Link>
                 </div>
               ))}
             </div>
-
           </div>
           <div className="flex items-center gap-4">
             <div className="md:hidden block">
               <button>
-                <AiOutlineSearch size={25} className={`${searchClass} ml-3 mt-2 `} />
+                <AiOutlineSearch
+                  size={25}
+                  className={`${searchClass} ml-3 mt-2 `}
+                />
               </button>
-
             </div>
 
             <div className="md:block hidden search-box">
@@ -320,8 +284,9 @@ const AdminLayout = ({ children }) => {
               </Dropdown>{" "}
             </div>
             <div
-              className={`text-${mode === "dark" ? "white" : "gray-900"
-                } transition duration-500 ease-in-out `}
+              className={`text-${
+                mode === "dark" ? "white" : "gray-900"
+              } transition duration-500 ease-in-out `}
             >
               <div className="flex justify-center items-center">
                 <button onClick={toggleMode}>
@@ -377,8 +342,9 @@ const AdminLayout = ({ children }) => {
           <div className={`flex flex-col gap-1 p-5  ${sidebarClass}`}>
             <Link to={"/admin"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isAdminActive ? " bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isAdminActive ? " bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <HomeOutlined />
                 <p>Dashboard</p>
@@ -386,8 +352,9 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/user-management"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isUserActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isUserActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <UserOutlined />
                 <p>User Management</p>
@@ -395,46 +362,41 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/manager-management"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isManagerActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isManagerActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <UserOutlined />
                 <p>Manager Management</p>
               </div>
             </Link>
-            <Link to={"/support-help-desk"}>
+            {/* <Link to={"/support-help-desk"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isSupportActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isSupportActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <QuestionCircleOutlined />
 
                 <p>Support & Help Desk</p>
               </div>
-            </Link>
+            </Link> */}
 
             <Link to={"/payment-subscription"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isPaymentActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isPaymentActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <CreditCardOutlined />
                 <p>Payment & Subscription</p>
               </div>
             </Link>
-            <Link to={"/content-template"}>
-              <div
-                className={`flex items-center gap-2 px-3 py-2 ${isContentActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
-              >
-                <FileOutlined />
-                <p>Content Template</p>
-              </div>
-            </Link>
             <Link to={"/report-analytics"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isReportActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isReportActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <BarChartOutlined />
                 <p>Report & Analytics</p>
@@ -442,8 +404,9 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/settings"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isSettingsActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isSettingsActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <CreditCardOutlined />
                 <p>Settings</p>
@@ -451,8 +414,9 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/all-activities"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isActivityActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isActivityActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <CarryOutOutlined />
                 <p>All Activities</p>
@@ -460,8 +424,9 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/logout-account-management"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isAccountActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isAccountActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <LogoutOutlined />
                 <p>Logout & Account Management</p>
@@ -469,8 +434,9 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/system-health-monitoring"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isHealthActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isHealthActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <HeartOutlined />
                 <p>System Health Monitoring</p>
@@ -478,10 +444,11 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/notifications"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isNotificationsActive
-                  ? "bg-[#012B6D] text-white rounded-lg"
-                  : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isNotificationsActive
+                    ? "bg-[#012B6D] text-white rounded-lg"
+                    : ""
+                }`}
               >
                 <NotificationOutlined />
                 <p>Notifications</p>
@@ -495,40 +462,51 @@ const AdminLayout = ({ children }) => {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center ">
                     <AiOutlineSchedule size={18} />
-                    <p className="pl-1">
-                      Schedule Post
-
-                    </p>
+                    <p className="pl-1">Schedule Post</p>
                   </div>
-                  <span>{isOpen ? <MdKeyboardArrowUp size={18} /> : <MdKeyboardArrowDown size={18} />}</span>
+                  <span>
+                    {isOpen ? (
+                      <MdKeyboardArrowUp size={18} />
+                    ) : (
+                      <MdKeyboardArrowDown size={18} />
+                    )}
+                  </span>
                 </div>
               </div>
-              {isOpen && <div className="">
-                <Link to={"/facebook"}>
-                  <div
-                    className={`flex items-center gap-2 px-3 py-2 ${isFacebookActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+              {isOpen && (
+                <div className="">
+                  <Link to={"/facebook"}>
+                    <div
+                      className={`flex items-center gap-2 px-3 py-2 ${
+                        isFacebookActive
+                          ? "bg-[#012B6D] text-white rounded-lg"
+                          : ""
                       }`}
-                  >
-                    <CiFacebook size={18} />
-                    <p>Facebook</p>
-                  </div>
-                </Link>
-                <Link to={"/instagram"}>
-                  <div
-                    className={`flex items-center gap-2 px-3 py-2 ${isInstagramActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                    >
+                      <CiFacebook size={18} />
+                      <p>Facebook</p>
+                    </div>
+                  </Link>
+                  <Link to={"/instagram"}>
+                    <div
+                      className={`flex items-center gap-2 px-3 py-2 ${
+                        isInstagramActive
+                          ? "bg-[#012B6D] text-white rounded-lg"
+                          : ""
                       }`}
-                  >
-                    <BiLogoInstagram size={18} />
-                    <p>Instagram</p>
-                  </div>
-                </Link>
-
-              </div>}
+                    >
+                      <BiLogoInstagram size={18} />
+                      <p>Instagram</p>
+                    </div>
+                  </Link>
+                </div>
+              )}
             </div>
             <Link to={"/help-documentation"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isHelpActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isHelpActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <QuestionCircleOutlined />
                 <p>Help & Documentation</p>
@@ -536,8 +514,9 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/image-upload"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isImageActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isImageActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <CiImageOn size={18} />
                 <p>Image Upload</p>
@@ -545,14 +524,14 @@ const AdminLayout = ({ children }) => {
             </Link>
             <Link to={"/video-upload"}>
               <div
-                className={`flex items-center gap-2 px-3 py-2 ${isVideoActive ? "bg-[#012B6D] text-white rounded-lg" : ""
-                  }`}
+                className={`flex items-center gap-2 px-3 py-2 ${
+                  isVideoActive ? "bg-[#012B6D] text-white rounded-lg" : ""
+                }`}
               >
                 <CiImageOn size={18} />
                 <p>Video Upload</p>
               </div>
             </Link>
-
           </div>
           <div>
             {/* {items.map((item, index) => (

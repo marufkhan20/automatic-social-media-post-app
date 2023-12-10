@@ -13,6 +13,7 @@ const {
   teamRoutes,
   settingRoutes,
   packageRoutes,
+  dashboardRoutes,
 } = require("./routes");
 
 if (process.env.NODE_ENV !== "production") {
@@ -46,6 +47,7 @@ app.use("/api/teams", teamRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/packages", packageRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/", (req, res) => {
   res.json({ message: "Hello World" });
 });

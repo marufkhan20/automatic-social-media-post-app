@@ -21,6 +21,10 @@ const userSchema = new Schema(
       required: true,
       trim: true,
     },
+    profilePic: {
+      type: String,
+      default: "",
+    },
     role: {
       type: String,
       required: true,

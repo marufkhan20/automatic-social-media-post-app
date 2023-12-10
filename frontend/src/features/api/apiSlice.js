@@ -42,6 +42,7 @@ export const apiSlice = createApi({
     "getManageUsersManagers",
     "getPackages",
     "getSubscriptions",
+    "getDocumentation",
   ],
   endpoints: (builder) => ({}),
 });

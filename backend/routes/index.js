@@ -7,4 +7,5 @@ module.exports = {
   teamRoutes: require("./teamRoutes"),
   settingRoutes: require("./settingRoutes"),
   packageRoutes: require("./packageRoutes"),
+  dashboardRoutes: require("./dashboardRoutes"),
 };
