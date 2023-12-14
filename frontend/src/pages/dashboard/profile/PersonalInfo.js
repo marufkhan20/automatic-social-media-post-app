@@ -4,7 +4,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import TimezoneSelect, { allTimezones } from "react-timezone-select";
 import spacetime from "spacetime";
 import Loading from "../../../components/shared/Loading";
 import { useUpdateProfileMutation } from "../../../features/user/userApi";
@@ -155,18 +154,7 @@ const PersonalInfo = ({ profilePic }) => {
           >
             Default Time Zone
           </label>
-          <div className="timezone--wrapper">
-            <TimezoneSelect
-              value={tz}
-              onChange={setTz}
-              className="focus:outline-none"
-              timezones={{
-                ...allTimezones,
-                "America/Lima": "Pittsburgh",
-                "Europe/Berlin": "Frankfurt",
-              }}
-            />
-          </div>
+          <div className="timezone--wrapper"></div>
         </div>
         <div className="flex items-center justify-between mt-7">
           <button
