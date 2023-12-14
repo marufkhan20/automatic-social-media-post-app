@@ -30,7 +30,6 @@ import Signin from "./pages/sign-in/Signin";
 import SignUp from "./pages/sign-up/SignUp";
 
 import { Toaster } from "react-hot-toast";
-import FacebookLoginButton from "./FacebookLogin";
 import AdminPrivateRoute from "./pages/AdminPrivateRoute";
 import PublicRoute from "./pages/PublicRoute";
 import Success from "./pages/Success";
@@ -69,7 +68,7 @@ function App() {
   return (
     <>
       <Toaster />
-      <FacebookLoginButton />
+      {/* <FacebookLoginButton /> */}
       <BrowserRouter>
         <Routes>
           <Route index element={<Home />} />
