@@ -5,6 +5,7 @@ import { FiPauseCircle } from "react-icons/fi";
 import { GoPlay } from "react-icons/go";
 import { IoMdAdd } from "react-icons/io";
 import { MdManageHistory } from "react-icons/md";
+import TimezoneSelect, { allTimezones } from "react-timezone-select";
 import spacetime from "spacetime";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import Accordion from "../Accordion";
@@ -199,7 +200,18 @@ const Email = () => {
                 >
                   Timezone:
                 </label>
-                <div className="timezone--wrapper"></div>
+                <div className="timezone--wrapper">
+                  <TimezoneSelect
+                    value={tz}
+                    onChange={setTz}
+                    className="focus:outline-none"
+                    timezones={{
+                      ...allTimezones,
+                      "America/Lima": "Pittsburgh",
+                      "Europe/Berlin": "Frankfurt",
+                    }}
+                  />
+                </div>
               </div>
             </form>
           </div>

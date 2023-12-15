@@ -78,7 +78,7 @@ const updateProfileController = async (req, res) => {
 
     let imagePath;
 
-    if (typeof profilePic === "string" && !profilePic?.includes("profile")) {
+    if (profilePic) {
       // upload image
       const buffer = Buffer.from(
         profilePic?.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""),

@@ -1,7 +1,7 @@
 import React from "react";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 
-const Privacy = () => {
+const JoinTeamGuide = () => {
   return (
     <div>
       <DashboardLayout>
@@ -34,7 +34,7 @@ const Privacy = () => {
                   </clipPath>
                 </defs>
               </svg>
-              <p className="text-[25px] font-[600]">Privacy Policy</p>
+              <p className="text-[25px] font-[600]">Team Join Guide</p>
             </div>
           </div>
           <div className="flex flex-col text-[#4A4A4A] md:w-full w-[300px]">
@@ -549,4 +549,4 @@ const Privacy = () => {
   );
 };
 
-export default Privacy;
+export default JoinTeamGuide;

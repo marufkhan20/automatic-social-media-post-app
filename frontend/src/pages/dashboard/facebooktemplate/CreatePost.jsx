@@ -295,6 +295,15 @@ const CreatePost = ({ handleCancel, refetch, user }) => {
           {errors?.title && (
             <p className="text-red-500 font-medium my-3">{errors?.title}</p>
           )}
+          <div className="my-4 flex flex-col md:flex-row md:items-center gap-3">
+            <label htmlFor="date" className="block font-semibold">
+              Hashtags:
+            </label>
+            <input
+              style={{ borderColor: isOverLimit ? "red" : "" }}
+              className="border p-2 rounded w-full md:ml-1 focus:outline-none"
+            />
+          </div>
           {isOverLimit && (
             <p style={{ color: "red" }}>
               Character limit exceeded (75 characters max).

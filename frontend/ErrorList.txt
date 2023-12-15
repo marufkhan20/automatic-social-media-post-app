@@ -1,0 +1,40 @@
+1. Whenever you click on the user or manager icon on the right side of the website at top it's takes me back to dashboard all time - done
+
+2. The bulling page on the manager and user is not done. - done
+
+Also the history of the pa.yment made on the billing page is not working - done
+
+3. When I change my image on the profile page.
+
+It doesn't show it on the icon on top of the page - done
+
+4. Also another error is that.
+
+On the create team page.
+
+There is text button called 'How to create a New Team's'
+
+The button should take them to a page where you explain how they create team and also join team. You will create a custom page so it will be helping them.  - done
+
+Also same things as 'how to use team's
+You should add it - done
+
+5. After I create a team on the team page.
+
+The page should refresh it self so I can see the team I create - done
+
+6. After I create a team
+
+The image or logo I added is not working - done
+
+6. Also on the create post page
+
+There should be button to choose if the post will be for Instagram or Facebook
+
+Or better we don't need button. But we will have one more box where they can Input there hashtag and our system will connect it to description - done
+
+7. The copy button for template sharing code not okay. It's copy the same code same time and it's very different from the template code I am seeing. - done
+
+8. Import template using code is not working - done
+
+All problems solve

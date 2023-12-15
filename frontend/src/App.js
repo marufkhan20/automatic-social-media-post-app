@@ -57,6 +57,8 @@ import ContactDash from "./pages/dashboard/contact/ContactDash";
 import Facebook from "./pages/dashboard/facebooktempteam/Facebook";
 import Image from "./pages/dashboard/imagesteam/Image";
 import InstagramTemp from "./pages/dashboard/instatempteam/InstagramTemp";
+import JoinTeamGuide from "./pages/dashboard/jointeam/JoinTeamGuide";
+import UseTeamGuide from "./pages/dashboard/jointeam/UseTeamGuide";
 import ManageManagers from "./pages/dashboard/manage-managers/ManageManagers";
 import ManageUsers from "./pages/dashboard/manage-users/ManageUsers";
 import TeamPage from "./pages/dashboard/teampage/TeamPage";
@@ -269,6 +271,24 @@ function App() {
               </UserPrivateRoute>
             }
           />
+
+          <Route
+            path="/dashboard/jointeam/use-team-guide"
+            element={
+              <UserPrivateRoute>
+                <UseTeamGuide />
+              </UserPrivateRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/jointeam/guide"
+            element={
+              <UserPrivateRoute>
+                <JoinTeamGuide />
+              </UserPrivateRoute>
+            }
+          />
           <Route path="/dashboard/team/:id" element={<TeamPage />} />
           <Route
             path="/dashboard/team/:id/facebook-template"
@@ -348,20 +368,9 @@ function App() {
           />
           <Route
             path="/dashboard/privacy-policy/privacy"
-            element={
-              <UserPrivateRoute>
-                <Privacy />
-              </UserPrivateRoute>
-            }
+            element={<Privacy />}
           />
-          <Route
-            path="/dashboard/terms-service/terms"
-            element={
-              <UserPrivateRoute>
-                <Terms />
-              </UserPrivateRoute>
-            }
-          />
+          <Route path="/dashboard/terms-service/terms" element={<Terms />} />
           <Route
             path="/dashboard/email"
             element={

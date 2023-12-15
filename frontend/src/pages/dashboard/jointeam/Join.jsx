@@ -2,6 +2,7 @@
 import { Button, Modal } from "antd";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import {
   useCreateTeamMutation,
@@ -182,9 +183,12 @@ const Join = () => {
               <p className="text-red-500 font-medium">{teamError}</p>
             )}
             <div>
-              <a href="" className="text-[#FF5FC0] ">
+              <Link
+                to="/dashboard/jointeam/use-team-guide"
+                className="text-[#FF5FC0] "
+              >
                 How To Use Teams {`>`}
-              </a>
+              </Link>
             </div>
           </div>
           <div
@@ -229,9 +233,12 @@ const Join = () => {
                 </button>
               </div>
               <div className="pt-5">
-                <a href="" className="text-[#FF5FC0] text-[16px]">
+                <Link
+                  to="/dashboard/jointeam/guide"
+                  className="text-[#FF5FC0] text-[16px]"
+                >
                   How To Create a New Team {`>`}
-                </a>
+                </Link>
               </div>
             </div>
           </div>

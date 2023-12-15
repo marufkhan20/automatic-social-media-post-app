@@ -6,6 +6,7 @@ import React, { useMemo, useRef, useState } from "react";
 import { BsCalendar4Week } from "react-icons/bs";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { TbZoomReplace } from "react-icons/tb";
+import TimezoneSelect, { allTimezones } from "react-timezone-select";
 import spacetime from "spacetime";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 
@@ -256,7 +257,18 @@ const Overview = () => {
                 >
                   Time Zone:
                 </label>
-                <div className="timezone--wrapper"></div>
+                <div className="timezone--wrapper">
+                  <TimezoneSelect
+                    value={tz}
+                    onChange={setTz}
+                    className="focus:outline-none"
+                    timezones={{
+                      ...allTimezones,
+                      "America/Lima": "Pittsburgh",
+                      "Europe/Berlin": "Frankfurt",
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>

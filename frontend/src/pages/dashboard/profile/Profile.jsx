@@ -1,7 +1,7 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Checkbox, Modal, Upload } from "antd";
-import React, { useEffect, useState } from "react";
+import { Checkbox } from "antd";
+import React, { useState } from "react";
 import { BsBell } from "react-icons/bs";
+import { useSelector } from "react-redux";
 import DashboardLayout from "../../../components/layout/DashboardLayout";
 import LoginInfo from "./LoginInfo";
 import PersonalInfo from "./PersonalInfo";
@@ -15,47 +15,19 @@ const getBase64 = (file) =>
   });
 
 const Profile = () => {
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
-  const [fileList, setFileList] = useState([
-    {
-      uid: "-1",
-      name: "image.png",
-      status: "done",
-      url: "/images/user.jpg",
-    },
-  ]);
-  const handleCancel = () => setPreviewOpen(false);
+  const { user } = useSelector((state) => state.auth || {});
+  const [profilePic, setProfilePic] = useState("");
 
-  const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
+  // capture image funciton
+  const captureImage = (e) => {
+    const file = e.target.files[0];
 
-    setPreviewImage(file.url || file.preview);
-    setPreviewOpen(true);
-    setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-    );
-  };
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
-
-  useEffect(() => {
-    console.log("files", fileList);
-    console.log("previewImage", previewImage);
-  }, [fileList, previewImage]);
-
-  const uploadButton = (
-    <div>
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </div>
-  );
-
-  const onChange = (e) => {
-    console.log(`checked = ${e.target.checked}`);
+    reader.onloadend = () => {
+      setProfilePic(reader.result);
+    };
   };
 
   return (
@@ -91,32 +63,35 @@ const Profile = () => {
               </div>
             </div>
             <div className="flex flex-col justify-start items-start gap-5 w-full">
-              <Upload
-                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                listType="picture-circle"
-                fileList={fileList}
-                onPreview={handlePreview}
-                onChange={handleChange}
-              >
-                {fileList.length >= 1 ? null : uploadButton}
-              </Upload>
-              <Modal
-                centered
-                visible={previewOpen}
-                title={previewTitle}
-                footer={null}
-                onCancel={handleCancel}
-              >
-                <img
-                  alt="example"
-                  style={{ width: "50%", height: "50%", objectFit: "cover" }}
-                  src={previewImage}
-                  className="mx-auto"
+              <img
+                src={
+                  profilePic
+                    ? profilePic
+                    : user?.profilePic
+                    ? `${process.env.REACT_APP_API_URL}${user?.profilePic}`
+                    : "/images/user.jpg"
+                }
+                alt=""
+                className="w-20 h-20 rounded-full cursor-pointer"
+              />
+              <div className="flex items-center gap-4">
+                <label
+                  htmlFor="profile-pic"
+                  className="px-4 py-2 rounded-lg text-white bg-[#012B6D] text-sm cursor-pointer"
+                >
+                  Upload
+                </label>
+                <input
+                  type="file"
+                  name="profile-pic"
+                  id="profile-pic"
+                  className="hidden"
+                  onChange={captureImage}
                 />
-              </Modal>
+              </div>
 
               <div className="md:w-[75%] w-full">
-                <PersonalInfo profilePic={fileList} />
+                <PersonalInfo profilePic={profilePic} />
               </div>
               <div className="border-t w-full"></div>
               <div className=" md:w-[75%] w-full">
@@ -137,26 +112,26 @@ const Profile = () => {
             <div className="flex   flex-col gap-5 mt-3">
               <div className="flex md:flex-row flex-col  md:items-center gap-3">
                 <p className="text-base font-bold">Sounds:</p>
-                <Checkbox onChange={onChange} className="text-base">
+                <Checkbox className="text-base">
                   Play chime when a post completes processing.
                 </Checkbox>
               </div>
               <div className="flex  md:flex-row flex-col md:items-center gap-3">
                 <p className="text-base font-bold">Comment Notification:</p>
-                <Checkbox onChange={onChange} className="text-base">
+                <Checkbox className="text-base">
                   Get a pop-up on Vizzlie when it's time for a scheduled comment
                   to go out.
                 </Checkbox>
               </div>
               <div className="flex  md:flex-row flex-col md:items-center gap-3">
                 <p className="text-base font-bold">Shift-Enter warning:</p>
-                <Checkbox onChange={onChange} className="text-base">
+                <Checkbox className="text-base">
                   Show Shift-Enter warning when sending texts.
                 </Checkbox>
               </div>
               <div className="flex md:flex-row flex-col  md:items-center gap-3">
                 <p className="text-base font-bold">Text Messages:</p>
-                <Checkbox onChange={onChange} className="text-base">
+                <Checkbox className="text-base">
                   Play chime when a post completes processing.
                 </Checkbox>
               </div>
